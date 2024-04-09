@@ -30,10 +30,10 @@ def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
         cost+= barrel.price
     
     with db.engine.begin() as connection:
-        prev_green_ml = (connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).fetchone())
+        prev_green_ml = (connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).fetchone())[0]
         
     with db.engine.begin() as connection:
-        prev_gold = (connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).fetchone())
+        prev_gold = (connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).fetchone())[0]
 
     new_ml = green_ml+prev_green_ml
     new_gold = prev_gold-cost
@@ -48,7 +48,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     """ """
     print(wholesale_catalog)
     with db.engine.begin() as connection:
-        green_potions = (connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).fetchone())
+        green_potions = (connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).fetchone())[0]
 
     
     if(green_potions<10):

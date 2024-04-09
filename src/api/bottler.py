@@ -25,10 +25,10 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory], order_id: int
         volume_potions += (potions.quantity * 100)
 
     with db.engine.begin() as connection:
-        prev_green_ml = (connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).fetchone())
+        prev_green_ml = (connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).fetchone())[0]
 
     with db.engine.begin() as connection:
-        prev_green_potions = (connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).fetchone())
+        prev_green_potions = (connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).fetchone())[0]
 
     new_ml = prev_green_ml-volume_potions
     new_potions = prev_green_potions+green_potions_amt
@@ -53,7 +53,7 @@ def get_bottle_plan():
 
     # Initial logic: bottle all barrels into red potions.
     with db.engine.begin() as connection:
-        prev_green_ml = (connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).fetchone())
+        prev_green_ml = (connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).fetchone())[0]
 
     potion_amt = prev_green_ml//100
     return [
