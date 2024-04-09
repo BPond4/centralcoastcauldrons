@@ -3,6 +3,8 @@ from pydantic import BaseModel
 from src.api import auth
 from enum import Enum
 
+cart_id_val = 0
+
 router = APIRouter(
     prefix="/carts",
     tags=["cart"],
@@ -85,7 +87,8 @@ def post_visits(visit_id: int, customers: list[Customer]):
 @router.post("/")
 def create_cart(new_cart: Customer):
     """ """
-    return {"cart_id": 1}
+    cart_id_val += 1
+    return {"cart_id": cart_id_val}
 
 
 class CartItem(BaseModel):
