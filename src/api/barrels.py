@@ -53,16 +53,17 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     
     if(green_potions<10):
         for barrel in wholesale_catalog:
-            if barrel.potion_type[1] == 100:
+            if barrel.potion_type[1]==100:
                 sku = barrel.sku
-        return [
-            {
-                "sku": sku,
-                "quantity": 1,
-            }
-        ]
-    else:
-        return[
-        ]
+                return [
+                    {
+                        "sku": sku,
+                        "quantity": 1,
+                    }
+                ]
+            else:
+                return[
+                
+                ]
     
 
