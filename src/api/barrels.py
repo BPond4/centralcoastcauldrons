@@ -55,6 +55,10 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
 
     purchase_plan = []
 
+    print(green_potions)
+    print(red_potions)
+    print(blue_potions)
+
     for barrel in wholesale_catalog:
         print(barrel)
         if((barrel.potion_type[1]>=1) and (barrel.price<=budget) and (green_potions<5)):
