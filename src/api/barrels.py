@@ -56,7 +56,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     purchase_plan = []
 
     for barrel in wholesale_catalog:
-        if((barrel.potion_type[1]>=1) & (barrel.price<=budget) & (green_potions<5)):
+        if((barrel.potion_type[1]>=1) and (barrel.price<=budget) and (green_potions<5)):
             sku = barrel.sku
             
             purchase_plan.append( 
@@ -66,7 +66,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 }
             )
             budget -= barrel.price
-        if((barrel.potion_type[0]>=1) & (barrel.price<=budget) & (red_potions<5)):
+        if((barrel.potion_type[0]>=1) and (barrel.price<=budget) and (red_potions<5)):
             sku = barrel.sku
             
             purchase_plan.append( 
@@ -76,7 +76,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 }
             )
             budget -= barrel.price
-        if((barrel.potion_type[2]>=1) & (barrel.price<=budget) & (blue_potions<5)):
+        if((barrel.potion_type[2]>=1) and (barrel.price<=budget) and (blue_potions<5)):
             sku = barrel.sku
             
             purchase_plan.append( 
