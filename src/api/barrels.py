@@ -56,6 +56,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     purchase_plan = []
 
     for barrel in wholesale_catalog:
+        print(barrel)
         if((barrel.potion_type[1]>=1) and (barrel.price<=budget) and (green_potions<5)):
             sku = barrel.sku
             
