@@ -86,5 +86,6 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 }
             )
             budget -= barrel.price
+    print(purchase_plan)
     return purchase_plan
 
