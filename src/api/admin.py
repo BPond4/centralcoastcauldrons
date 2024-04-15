@@ -17,7 +17,7 @@ def reset():
     inventory, and all barrels are removed from inventory. Carts are all reset.
     """
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_ml = :new_green_ml, num_green_potions = :new_green_potions, num_red_ml = :new_red_ml, num_red_potions = :new_red_potions, num_blue_ml = :new_blue_ml, num_blue_potions = :new_blue_potions, gold =:new_gold"),
+        result = connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_ml = :new_green_ml, num_green_potions = :new_green_potions, num_red_ml = :new_red_ml, num_red_potions = :new_red_potions, num_blue_ml = :new_blue_ml, num_blue_potions = :new_blue_potions, gold = :new_gold"),
         {"new_green_ml": 0, "new_green_potions": 0, "new_red_ml": 0, "new_red_potions":0, "new_blue_ml": 0, "new_blue_potions":0, "new_gold": 100})
     return result
 
