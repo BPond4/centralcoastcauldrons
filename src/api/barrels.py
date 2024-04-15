@@ -24,22 +24,33 @@ def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
     """ """
     print(f"barrels delievered: {barrels_delivered} order_id: {order_id}")
     green_ml = 0
+    red_ml = 0
+    blue_ml = 0
     cost = 0
     for barrel in barrels_delivered:
-        green_ml+=barrel.ml_per_barrel
+        green_ml+=(barrel.ml_per_barrel)*(barrel.potion_type[1])
+        red_ml += (barrel.ml_per_barrel)*(barrel.potion_type[0])
+        blue_ml += (barrel.ml_per_barrel)*(barrel.potion_type[2])
         cost+= barrel.price
     
     with db.engine.begin() as connection:
         prev_green_ml = (connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).fetchone())[0]
-        
-    with db.engine.begin() as connection:
+        prev_red_ml = (connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).fetchone())[0]
+        prev_blue_ml = (connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).fetchone())[0]
         prev_gold = (connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).fetchone())[0]
 
-    new_ml = green_ml+prev_green_ml
+    new_green_ml = green_ml+prev_green_ml
+    new_red_ml = red_ml+prev_red_ml
+    new_blue_ml = blue_ml+prev_blue_ml
     new_gold = prev_gold-cost
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_ml = :new_ml, gold = :new_gold"),
-        {"new_ml": new_ml, "new_gold": new_gold})
+        result = connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_ml = :new_green_ml, num_red_ml = :new_red_ml, num_blue_ml = :new_blue_ml, gold = :new_gold"),
+        {"new_green_ml": new_green_ml,"new_red_ml": new_red_ml, "new_blue_ml": new_blue_ml, "new_gold": new_gold})
+    
+    print(new_red_ml)
+    print(new_green_ml)
+    print(new_blue_ml)
+
     return result
 
 # Gets called once a day
