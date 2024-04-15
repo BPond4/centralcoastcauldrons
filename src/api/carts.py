@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from src.api import auth
 from enum import Enum
 
+cart_dict = {}
 cart_id_val = 0
 
 router = APIRouter(
@@ -98,7 +99,7 @@ class CartItem(BaseModel):
 @router.post("/{cart_id}/items/{item_sku}")
 def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
     """ """
-    
+    cart_dict[cart_id][item_sku] = cart_item
 
     return "OK"
 
@@ -109,5 +110,11 @@ class CartCheckout(BaseModel):
 @router.post("/{cart_id}/checkout")
 def checkout(cart_id: int, cart_checkout: CartCheckout):
     """ """
+    items_in_cart = cart_dict[cart_id]
+    total_potions = 0
+    total_gold = 0
+    for item in items_in_cart:
+        total_potions += items_in_cart[item]
+        total_gold += 50*items_in_cart[item]
 
-    return {"total_potions_bought": 1, "total_gold_paid": 50}
+    return {"total_potions_bought": total_potions, "total_gold_paid": total_gold}
