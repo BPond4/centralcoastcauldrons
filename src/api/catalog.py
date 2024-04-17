@@ -18,6 +18,9 @@ def get_catalog():
         blue_potions = (connection.execute(sqlalchemy.text("SELECT num_blue_potions FROM global_inventory")).fetchone())[0]
         red_potions = (connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory")).fetchone())[0]
 
+    print(red_potions)
+    print(green_potions)
+    print(blue_potions)
     return [
             {
                 "sku": "GREEN_POTION_0",
