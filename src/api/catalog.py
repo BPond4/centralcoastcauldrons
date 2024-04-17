@@ -21,21 +21,10 @@ def get_catalog():
     print(red_potions)
     print(green_potions)
     print(blue_potions)
-    return [
-            {
-                "sku": "GREEN_POTION_0",
-                "name": "green potion",
-                "quantity": green_potions,
-                "price": 50,
-                "potion_type": [0, 100, 0, 0],
-            },
-            {
-                "sku": "BLUE_POTION_0",
-                "name": "blue potion",
-                "quantity": blue_potions,
-                "price": 50,
-                "potion_type": [0, 0, 100, 0],
-            },
+    cur_items = []
+
+    if(red_potions >0):
+        cur_items.append(
             {
                 "sku": "RED_POTION_0",
                 "name": "red potion",
@@ -43,4 +32,26 @@ def get_catalog():
                 "price": 50,
                 "potion_type": [100, 0, 0, 0],
             }
-        ]
+        )
+    if(green_potions>0):
+        cur_items.append(
+            {
+                "sku": "GREEN_POTION_0",
+                "name": "green potion",
+                "quantity": green_potions,
+                "price": 50,
+                "potion_type": [0, 100, 0, 0],
+            }
+        )
+    if(blue_potions>0):
+        cur_items.append(
+            {
+                "sku": "BLUE_POTION_0",
+                "name": "blue potion",
+                "quantity": blue_potions,
+                "price": 50,
+                "potion_type": [0, 0, 100, 0],
+            }
+        )
+
+    return cur_items
