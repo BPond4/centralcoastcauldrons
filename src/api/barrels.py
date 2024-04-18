@@ -23,15 +23,33 @@ class Barrel(BaseModel):
 def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
     """ """
     print(f"barrels delievered: {barrels_delivered} order_id: {order_id}")
+
+    # with db.engine.begin() as connection:
+    #     try:
+    #         connection.execute(
+    #             sqlalchemy.text(
+    #                 "INSERT INTO processed (job_id, type) VALUES (:order_id, 'barrels')"),
+    #                 [{"order_id": order_id}]
+    #         )
+    #     except IntegrityError as e:
+    #         return "OK"
     green_ml = 0
     red_ml = 0
     blue_ml = 0
     cost = 0
+
+    
+
     for barrel in barrels_delivered:
+        if(barrel.potion_type!= [1,0,0,0] and barrel.potion_type != [0,1,0,0] and barrel.potion_type!= [0,0,1,0] and barrel.potion_type != [0,0,0,1]):
+            raise Exception("Invalid potion type")
+        
         green_ml+=(barrel.ml_per_barrel)*(barrel.potion_type[1])
         red_ml += (barrel.ml_per_barrel)*(barrel.potion_type[0])
         blue_ml += (barrel.ml_per_barrel)*(barrel.potion_type[2])
         cost+= barrel.price
+
+    print(f"gold_paid: {cost} red_ml: {red_ml} green_ml: {green_ml} blue_ml: {blue_ml} dark_ml: {0}")
     
     with db.engine.begin() as connection:
         prev_green_ml = (connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).fetchone())[0]

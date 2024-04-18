@@ -88,6 +88,7 @@ def post_visits(visit_id: int, customers: list[Customer]):
 @router.post("/")
 def create_cart(new_cart: Customer):
     """ """
+    global cart_id_val
     cart_id_val += 1
     return {"cart_id": cart_id_val}
 
@@ -99,6 +100,7 @@ class CartItem(BaseModel):
 @router.post("/{cart_id}/items/{item_sku}")
 def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
     """ """
+    global cart_dict
     cart_dict[cart_id][item_sku] = cart_item
 
     return "OK"
@@ -110,6 +112,7 @@ class CartCheckout(BaseModel):
 @router.post("/{cart_id}/checkout")
 def checkout(cart_id: int, cart_checkout: CartCheckout):
     """ """
+    global cart_dict
     items_in_cart = cart_dict[cart_id]
     total_potions = 0
     total_gold = 0
