@@ -103,7 +103,7 @@ class CartItem(BaseModel):
 def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
     """ """
     global cart_dict
-    cart_dict[cart_id][item_sku] = cart_item
+    cart_dict[cart_id][item_sku] = cart_item.quantity
 
     return "OK"
 
