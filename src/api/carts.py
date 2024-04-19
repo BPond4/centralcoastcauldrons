@@ -89,7 +89,9 @@ def post_visits(visit_id: int, customers: list[Customer]):
 def create_cart(new_cart: Customer):
     """ """
     global cart_id_val
+    global cart_dict
     cart_id_val += 1
+    cart_dict[cart_id_val] = {}
     return {"cart_id": cart_id_val}
 
 
