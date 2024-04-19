@@ -120,6 +120,6 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
     total_gold = 0
     for item in items_in_cart:
         total_potions += items_in_cart[item]
-        total_gold += 50*items_in_cart[item]
+        total_gold += 40*items_in_cart[item]
 
     return {"total_potions_bought": total_potions, "total_gold_paid": total_gold}
