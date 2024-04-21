@@ -70,28 +70,60 @@ def get_bottle_plan():
         prev_blue_ml = (connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).fetchone())[0]
         prev_red_ml = (connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).fetchone())[0]
         prev_dark_ml = (connection.execute(sqlalchemy.text("SELECT num_dark_ml FROM global_inventory")).fetchone())[0]
+        cur_gold = (connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).fetchone())[0]
 
     
     potion_list = []
 
-    if(prev_blue_ml>=102 and prev_red_ml>=100 and prev_green_ml>=100):
+    if(prev_blue_ml>=34 and prev_red_ml>=33 and prev_green_ml>=33):
+        amt = min((prev_blue_ml//34),min((prev_red_ml//33),(prev_green_ml//33)))
         potion_list.append(
             {
                 "potion_type": [33,33,34,0],
-                "quantity": 3,
+                "quantity": amt,
             }
         )
-
-
-
-    if(prev_red_ml>50 and prev_blue_ml>50):
-        quant = min(prev_blue_ml//50,prev_red_ml//50)
+    elif(prev_red_ml>50 and prev_blue_ml>50):
+        amt = min(prev_blue_ml//50,prev_red_ml//50)
         potion_list.append(
             {
                 "potion_type": [50,0,50,0],
-                "quantity": quant,
+                "quantity": amt,
             }
         )
+    elif(cur_gold<100):
+        if(prev_red_ml>=100):
+            amt = prev_red_ml//100
+            potion_list.append(
+                {
+                    "potion_type": [100,0,0,0],
+                    "quantity": amt,
+                }
+            )
+        if(prev_green_ml>=100):
+            amt = prev_green_ml//100
+            potion_list.append(
+                {
+                    "potion_type": [0,100,0,0],
+                    "quantity": amt,
+                }
+            )
+        if(prev_blue_ml>=100):
+            amt = prev_blue_ml//100
+            potion_list.append(
+                {
+                    "potion_type": [0,0,100,0],
+                    "quantity": amt,
+                }
+            )
+        if(prev_dark_ml>=100):
+            amt = prev_dark_ml//100
+            potion_list.append(
+                {
+                    "potion_type": [0,0,0,100],
+                    "quantity": amt,
+                }
+            )
     
     
     return [
