@@ -19,46 +19,36 @@ class PotionInventory(BaseModel):
 def post_deliver_bottles(potions_delivered: list[PotionInventory], order_id: int):
     """ """
     print(potions_delivered)
-    green_potions_amt = 0
-    red_potions_amt = 0
-    blue_potions_amt = 0
-    volume_green = 0
-    volume_red = 0
-    volume_blue = 0
+    new_red_ml = 0
+    new_green_ml = 0
+    new_blue_ml = 0
+    new_dark_ml = 0
+    new_red_potions = 0
+    new_green_potions = 0
+    new_blue_potions = 0
+    new_dark_potions = 0
     for potions in potions_delivered:
-        if(potions.potion_type[0]==100):
-            red_potions_amt += potions.quantity
-        elif(potions.potion_type[1]==100):
-            green_potions_amt += potions.quantity
-        elif(potions.potion_type[2]==100):
-            blue_potions_amt += potions.quantity
+        if(potions.potion_type[0]>=50):
+            new_red_potions += potions.quantity
+        elif(potions.potion_type[1]>=50):
+            new_green_potions += potions.quantity
+        elif(potions.potion_type[2]>=50):
+            new_blue_potions += potions.quantity
+        elif(potions.potion_type[3]>=50):
+            new_dark_potions += potions.quantity
 
-        volume_red += (potions.quantity * potions.potion_type[0])
-        volume_green += (potions.quantity * potions.potion_type[1])
-        volume_blue += (potions.quantity * potions.potion_type[2])
-
-    with db.engine.begin() as connection:
-        prev_green_ml = (connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).fetchone())[0]
-        prev_green_potions = (connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).fetchone())[0]
-
-        prev_red_ml = (connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).fetchone())[0]
-        prev_red_potions = (connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory")).fetchone())[0]
-
-        prev_blue_ml = (connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).fetchone())[0]
-        prev_blue_potions = (connection.execute(sqlalchemy.text("SELECT num_blue_potions FROM global_inventory")).fetchone())[0]
-
-    new_green_ml = prev_green_ml-volume_green
-    new_green_potions = prev_green_potions+green_potions_amt
-
-    new_red_ml = prev_red_ml-volume_red
-    new_red_potions = prev_red_potions+red_potions_amt
-
-    new_blue_ml = prev_blue_ml-volume_blue
-    new_blue_potions = prev_blue_potions+blue_potions_amt
+        new_red_ml += (potions.quantity * potions.potion_type[0])
+        new_green_ml += (potions.quantity * potions.potion_type[1])
+        new_blue_ml += (potions.quantity * potions.potion_type[2])
+        new_dark_ml += (potions.quantity * potions.potion_type[3])
+        with db.engine.begin() as connection:
+            result = (connection.execute(sqlalchemy.text("UPDATE potions SET quantity = quantity + :quant WHERE blue = :blue_val AND red = :red_val AND green = :green_val AND dark = :dark_val"),
+                                        {"quant": potions.quantity, "blue_val": potions.potion_type[2], "red_val": potions.potion_type[0], "green_val": potions.potion_type[1], "dark_val":potions.potion_type[3]}))
 
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_ml = :new_green_ml, num_green_potions = :new_green_potions, num_red_ml = :new_red_ml, num_red_potions = :new_red_potions, num_blue_ml = :new_blue_ml, num_blue_potions = :new_blue_potions"),
-        {"new_green_ml": new_green_ml, "new_green_potions": new_green_potions, "new_red_ml": new_red_ml, "new_red_potions": new_red_potions, "new_blue_ml": new_blue_ml, "new_blue_potions": new_blue_potions})
+        result = connection.execute(sqlalchemy.text(
+            "UPDATE global_inventory SET num_green_ml = num_green_ml + :new_green_ml, num_green_potions = num_green_potions + :new_green_potions, num_red_ml = num_red_ml + :new_red_ml, num_red_potions = num_red_potions + :new_red_potions, num_blue_ml = num_blue_ml + :new_blue_ml, num_blue_potions = num_blue_potions + :new_blue_potions, num_dark_ml = num_dark_ml + :new_dark_ml, num_dark_potions = num_dark_potions + :new_dark_potions"),
+        {"new_green_ml": new_green_ml, "new_green_potions": new_green_potions, "new_red_ml": new_red_ml, "new_red_potions": new_red_potions, "new_blue_ml": new_blue_ml, "new_blue_potions": new_blue_potions, "new_dark_ml": new_dark_ml, "new_dark_potions": new_dark_potions})
 
     print(f"potions delievered: {potions_delivered} order_id: {order_id}")
 
@@ -79,23 +69,33 @@ def get_bottle_plan():
         prev_green_ml = (connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).fetchone())[0]
         prev_blue_ml = (connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).fetchone())[0]
         prev_red_ml = (connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).fetchone())[0]
+        prev_dark_ml = (connection.execute(sqlalchemy.text("SELECT num_dark_ml FROM global_inventory")).fetchone())[0]
 
-    green_potion_amt = prev_green_ml//100
-    blue_potion_amt = prev_blue_ml//100
-    red_potion_amt = prev_red_ml//100
-    return [
+    
+    potion_list = []
+
+    if(prev_blue_ml>=102 and prev_red_ml>=100 and prev_green_ml>=100):
+        potion_list.append(
             {
-                "potion_type": [0, 100, 0, 0],
-                "quantity": green_potion_amt,
-            },
-            {
-                "potion_type": [0, 0, 100, 0],
-                "quantity": blue_potion_amt,
-            },
-            {
-                "potion_type": [100, 0, 0, 0],
-                "quantity": red_potion_amt,
+                "potion_type": [33,33,34,0],
+                "quantity": 3,
             }
+        )
+
+
+
+    if(prev_red_ml>50 and prev_blue_ml>50):
+        quant = min(prev_blue_ml//50,prev_red_ml//50)
+        potion_list.append(
+            {
+                "potion_type": [50,0,50,0],
+                "quantity": quant,
+            }
+        )
+    
+    
+    return [
+            potion_list
         ]
 
 if __name__ == "__main__":

@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
 from src.api import auth
 from enum import Enum
+import sqlalchemy
+from src import database as db
 
 cart_dict = {}
 cart_id_val = 0
@@ -118,8 +120,25 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
     items_in_cart = cart_dict[cart_id]
     total_potions = 0
     total_gold = 0
-    for item in items_in_cart:
-        total_potions += items_in_cart[item]
-        total_gold += 40*items_in_cart[item]
+    for item, quant in items_in_cart:
+        with db.engine.begin() as connection:
+            row = connection.execute(sqlalchemy.text("SELECT * FROM potions WHERE sku = :sku"), {"sku": item}).fetchone()
+            if row:
+                old_quantity = connection.execute(sqlalchemy.text("SELECT quantity FROM potions WHERE sku = :sku"),{"sku":item}).fetchone()[0]
+            else:
+                raise Exception("No potion of that type")
+            
+            new_quantity = old_quantity - quant
+            result = connection.execute(sqlalchemy.text("UPDATE potions SET quantity = :new_quantity WHERE sku = :sku"),
+            {"new_quantity": new_quantity, "sku": item})
+            price = connection.execute(sqlalchemy.text("SELECT price FROM potions WHERE sku = :sku"), {"sku: item"}).fetchone()[0]
 
+        total_potions += quant
+        total_gold += price * quant
+        
+    with db.engine.begin() as connection:
+            old_gold = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).fetchone()[0]
+            new_gold = old_gold+total_gold
+            result = connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = :new_gold"),
+            {"new_gold": new_gold})
     return {"total_potions_bought": total_potions, "total_gold_paid": total_gold}

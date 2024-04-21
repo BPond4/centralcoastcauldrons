@@ -10,45 +10,20 @@ def get_catalog():
     """
     Each unique item combination must have only a single price.
     """
-    green_potions = 0
-    blue_potions = 0
-    red_potions = 0
     with db.engine.begin() as connection:
-        green_potions = (connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).fetchone())[0]
-        blue_potions = (connection.execute(sqlalchemy.text("SELECT num_blue_potions FROM global_inventory")).fetchone())[0]
-        red_potions = (connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory")).fetchone())[0]
+        in_stock = (connection.execute(sqlalchemy.text("SELECT * FROM potions WHERE quantity > 0")).fetchall())
 
     cur_items = []
 
-    if(red_potions >0):
+    for potion in in_stock:
         cur_items.append(
             {
-                "sku": "RED_POTION_0",
-                "name": "red potion",
-                "quantity": red_potions,
-                "price": 40,
-                "potion_type": [100, 0, 0, 0],
+                "sku": potion['sku'],
+                "name": potion['sku'],
+                "quantity": potion['quantity'],
+                "price": potion['price'],
+                "potion_type": [potion['red'], potion['green'], potion['blue'], potion['dark']],
             }
         )
-    if(green_potions>0):
-        cur_items.append(
-            {
-                "sku": "GREEN_POTION_0",
-                "name": "green potion",
-                "quantity": green_potions,
-                "price": 40,
-                "potion_type": [0, 100, 0, 0],
-            }
-        )
-    if(blue_potions>0):
-        cur_items.append(
-            {
-                "sku": "BLUE_POTION_0",
-                "name": "blue potion",
-                "quantity": blue_potions,
-                "price": 40,
-                "potion_type": [0, 0, 100, 0],
-            }
-        )
-
+    
     return cur_items

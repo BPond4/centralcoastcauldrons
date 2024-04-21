@@ -36,6 +36,7 @@ def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
     green_ml = 0
     red_ml = 0
     blue_ml = 0
+    dark_ml = 0
     cost = 0
 
     
@@ -47,27 +48,31 @@ def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
         green_ml+=(barrel.ml_per_barrel)*(barrel.potion_type[1])
         red_ml += (barrel.ml_per_barrel)*(barrel.potion_type[0])
         blue_ml += (barrel.ml_per_barrel)*(barrel.potion_type[2])
+        dark_ml += (barrel.ml_per_barrel)*(barrel.potion_type[3])
         cost+= barrel.price
 
-    print(f"gold_paid: {cost} red_ml: {red_ml} green_ml: {green_ml} blue_ml: {blue_ml} dark_ml: {0}")
+    print(f"gold_paid: {cost} red_ml: {red_ml} green_ml: {green_ml} blue_ml: {blue_ml} dark_ml: {dark_ml}")
     
     with db.engine.begin() as connection:
         prev_green_ml = (connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).fetchone())[0]
         prev_red_ml = (connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).fetchone())[0]
         prev_blue_ml = (connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).fetchone())[0]
+        prev_dark_ml = (connection.execute(sqlalchemy.text("SELECT num_dark_ml FROM global_inventory")).fetchone())[0]
         prev_gold = (connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).fetchone())[0]
 
     new_green_ml = green_ml+prev_green_ml
     new_red_ml = red_ml+prev_red_ml
     new_blue_ml = blue_ml+prev_blue_ml
+    new_dark_ml = dark_ml+prev_dark_ml
     new_gold = prev_gold-cost
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_ml = :new_green_ml, num_red_ml = :new_red_ml, num_blue_ml = :new_blue_ml, gold = :new_gold"),
-        {"new_green_ml": new_green_ml,"new_red_ml": new_red_ml, "new_blue_ml": new_blue_ml, "new_gold": new_gold})
+        result = connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_ml = :new_green_ml, num_red_ml = :new_red_ml, num_blue_ml = :new_blue_ml, num_dark_ml = :new_dark_ml, gold = :new_gold"),
+        {"new_green_ml": new_green_ml,"new_red_ml": new_red_ml, "new_blue_ml": new_blue_ml, "new_dark_ml": new_dark_ml, "new_gold": new_gold})
     
     print(new_red_ml)
     print(new_green_ml)
     print(new_blue_ml)
+    print(new_dark_ml)
 
     return result
 
@@ -77,44 +82,63 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     """ """
     print(wholesale_catalog)
     with db.engine.begin() as connection:
-        green_potions = (connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory")).fetchone())[0]
-        red_potions = (connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory")).fetchone())[0]
-        blue_potions = (connection.execute(sqlalchemy.text("SELECT num_blue_potions FROM global_inventory")).fetchone())[0]
+        red_ml = connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).fetchone()[0]
+        green_ml = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).fetchone()[0]
+        blue_ml = connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).fetchone()[0]
+        dark_ml = connection.execute(sqlalchemy.text("SELECT num_dark_ml FROM global_inventory")).fetchone()[0]
+
         budget = (connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).fetchone())[0]
 
     purchase_plan = []
 
     for barrel in wholesale_catalog:
-        if((barrel.potion_type[1]>=1) and (barrel.price<=budget) and (green_potions<5)):
-            sku = barrel.sku
-            
-            purchase_plan.append( 
-                {
-                    "sku": sku,
-                    "quantity": 1,
-                }
-            )
-            budget -= barrel.price
-        if((barrel.potion_type[0]>=1) and (barrel.price<=budget) and (red_potions<5)):
-            sku = barrel.sku
-            
-            purchase_plan.append( 
-                {
-                    "sku": sku,
-                    "quantity": 1,
-                }
-            )
-            budget -= barrel.price
-        if((barrel.potion_type[2]>=1) and (barrel.price<=budget) and (blue_potions<5)):
-            sku = barrel.sku
-            
-            purchase_plan.append( 
-                {
-                    "sku": sku,
-                    "quantity": 1,
-                }
-            )
-            budget -= barrel.price
+        if(green_ml == 0 or (green_ml<blue_ml and green_ml<red_ml and green_ml<dark_ml)):
+            if((barrel.potion_type[1]>=1) and (barrel.price<=budget)):
+                sku = barrel.sku
+                
+                purchase_plan.append( 
+                    {
+                        "sku": sku,
+                        "quantity": 1,
+                    }
+                )
+                budget -= barrel.price
+        elif(red_ml == 0 or (red_ml<blue_ml and red_ml<green_ml and red_ml<dark_ml)):
+            if((barrel.potion_type[0]>=1) and (barrel.price<=budget)):
+                sku = barrel.sku
+                
+                purchase_plan.append( 
+                    {
+                        "sku": sku,
+                        "quantity": 1,
+                    }
+                )
+                budget -= barrel.price
+        elif(blue_ml == 0 or (blue_ml<red_ml and blue_ml<green_ml and blue_ml<dark_ml)):
+            if((barrel.potion_type[2]>=1) and (barrel.price<=budget)):
+                sku = barrel.sku
+                
+                purchase_plan.append( 
+                    {
+                        "sku": sku,
+                        "quantity": 1,
+                    }
+                )
+                budget -= barrel.price
+        elif(dark_ml == 0 or (dark_ml<blue_ml and dark_ml<green_ml and dark_ml<red_ml)):
+            if((barrel.potion_type[3]>=1) and (barrel.price<=budget)):
+                sku = barrel.sku
+                
+                purchase_plan.append( 
+                    {
+                        "sku": sku,
+                        "quantity": 1,
+                    }
+                )
+                budget -= barrel.price
+        
+        
+        
     print(purchase_plan)
     return purchase_plan
 
