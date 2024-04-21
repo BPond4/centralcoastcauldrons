@@ -82,32 +82,32 @@ def get_bottle_plan():
             }
         )
     elif(cur_gold<100):
-        if(prev_red_ml>=100):
-            amt = prev_red_ml//100
+        if(prev_red_ml>=200):
+            amt = (prev_red_ml//100)-1
             potion_list.append(
                 {
                     "potion_type": [100,0,0,0],
                     "quantity": amt,
                 }
             )
-        if(prev_green_ml>=100):
-            amt = prev_green_ml//100
+        if(prev_green_ml>=200):
+            amt = (prev_green_ml//100)-1
             potion_list.append(
                 {
                     "potion_type": [0,100,0,0],
                     "quantity": amt,
                 }
             )
-        if(prev_blue_ml>=100):
-            amt = prev_blue_ml//100
+        if(prev_blue_ml>=200):
+            amt = (prev_blue_ml//100)-1
             potion_list.append(
                 {
                     "potion_type": [0,0,100,0],
                     "quantity": amt,
                 }
             )
-        if(prev_dark_ml>=100):
-            amt = prev_dark_ml//100
+        if(prev_dark_ml>=200):
+            amt = (prev_dark_ml//100)-1
             potion_list.append(
                 {
                     "potion_type": [0,0,0,100],
