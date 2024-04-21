@@ -23,19 +23,9 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory], order_id: int
     new_green_ml = 0
     new_blue_ml = 0
     new_dark_ml = 0
-    new_red_potions = 0
-    new_green_potions = 0
-    new_blue_potions = 0
-    new_dark_potions = 0
+    new_total_potions = 0
     for potions in potions_delivered:
-        if(potions.potion_type[0]>=50):
-            new_red_potions += potions.quantity
-        elif(potions.potion_type[1]>=50):
-            new_green_potions += potions.quantity
-        elif(potions.potion_type[2]>=50):
-            new_blue_potions += potions.quantity
-        elif(potions.potion_type[3]>=50):
-            new_dark_potions += potions.quantity
+        new_total_potions += potions.quantity
 
         new_red_ml += (potions.quantity * potions.potion_type[0])
         new_green_ml += (potions.quantity * potions.potion_type[1])
@@ -47,8 +37,8 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory], order_id: int
 
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
-            "UPDATE global_inventory SET num_green_ml = num_green_ml + :new_green_ml, num_green_potions = num_green_potions + :new_green_potions, num_red_ml = num_red_ml + :new_red_ml, num_red_potions = num_red_potions + :new_red_potions, num_blue_ml = num_blue_ml + :new_blue_ml, num_blue_potions = num_blue_potions + :new_blue_potions, num_dark_ml = num_dark_ml + :new_dark_ml, num_dark_potions = num_dark_potions + :new_dark_potions"),
-        {"new_green_ml": new_green_ml, "new_green_potions": new_green_potions, "new_red_ml": new_red_ml, "new_red_potions": new_red_potions, "new_blue_ml": new_blue_ml, "new_blue_potions": new_blue_potions, "new_dark_ml": new_dark_ml, "new_dark_potions": new_dark_potions})
+            "UPDATE global_inventory SET num_green_ml = num_green_ml + :new_green_ml, num_red_ml = num_red_ml + :new_red_ml, num_blue_ml = num_blue_ml + :new_blue_ml,  num_dark_ml = num_dark_ml + :new_dark_ml, num_potions = num_potions + :new_potions"),
+        {"new_green_ml": new_green_ml, "new_red_ml": new_red_ml, "new_blue_ml": new_blue_ml, "new_dark_ml": new_dark_ml, "new_potions": new_total_potions})
 
     print(f"potions delievered: {potions_delivered} order_id: {order_id}")
 
