@@ -11,7 +11,7 @@ def get_catalog():
     Each unique item combination must have only a single price.
     """
     with db.engine.begin() as connection:
-        in_stock = (connection.execute(sqlalchemy.text("SELECT * FROM potions WHERE quantity > 0"), dict = True).fetchall())
+        in_stock = connection.execute(sqlalchemy.text("SELECT * FROM potions WHERE quantity > 0"), dict = True).fetchall()
 
     cur_items = []
 
