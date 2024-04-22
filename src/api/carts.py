@@ -127,9 +127,8 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
                     total_potions += cart_item.quantity
                     gold_gained += (connection.execute(sqlalchemy.text("SELECT price FROM potions WHERE id = :prod_id"),{"prod_id": cart_item.product_id}).fetchone()[0])*cart_item.quantity
                     connection.execute(sqlalchemy.text("UPDATE potions SET quantity = quantity - :amt WHERE id = :prod_id"),{"amt": cart_item.quantity, "prod_id": cart_item.product_id})
-                    connection.execute(sqlalchemy.text("DELETE FROM cart_items WHERE cart_id = :cart_id AND product_id = :product_id"),{"cart_id":cart_item.cart_id, "product_id":cart_item.product_id})
                 connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = gold + :gold_gained, num_potions = num_potions - :total_potions"),{"gold_gained":gold_gained, "total_potions": total_potions})
-                connection.execute(sqlalchemy.text("DELETE FROM carts WHERE id = :cart_id"),{"cart_id":cart_item.cart_id})
+    
             else:
                 raise Exception("No items in cart")
 
