@@ -116,9 +116,7 @@ def get_bottle_plan():
             )
     
     
-    return [
-            potion_list
-        ]
+    return potion_list
 
 if __name__ == "__main__":
     print(get_bottle_plan())
