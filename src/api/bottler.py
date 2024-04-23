@@ -74,10 +74,26 @@ def get_bottle_plan():
             }
         )
     elif(prev_red_ml>50 and prev_blue_ml>50):
-        amt = min(prev_blue_ml//50,prev_red_ml//50)
+        amt = min(prev_blue_ml//50,prev_red_ml//50) - 1 
         potion_list.append(
             {
                 "potion_type": [50,0,50,0],
+                "quantity": amt,
+            }
+        )
+    elif(prev_green_ml>50 and prev_blue_ml>50):
+        amt = min(prev_blue_ml//50,prev_green_ml//50) - 1
+        potion_list.append(
+            {
+                "potion_type": [0,50,50,0],
+                "quantity": amt,
+            }
+        )
+    elif(prev_red_ml>50 and prev_green_ml>50):
+        amt = min(prev_green_ml//50,prev_red_ml//50) - 1
+        potion_list.append(
+            {
+                "potion_type": [50,50,0,0],
                 "quantity": amt,
             }
         )
