@@ -89,6 +89,8 @@ def get_bottle_plan():
                 "quantity": amt,
             }
         )
+        prev_green_ml -= amt * 50
+        prev_blue_ml -= amt * 50
     elif(prev_red_ml>50 and prev_green_ml>50):
         amt = min(prev_green_ml//50,prev_red_ml//50) - 1
         potion_list.append(
@@ -130,7 +132,14 @@ def get_bottle_plan():
                     "quantity": amt,
                 }
             )
-    
+    if(prev_green_ml>1000):
+        amt = (prev_green_ml//1000)*10
+        potion_list.append(
+                {
+                    "potion_type": [0,100,0,0],
+                    "quantity": amt,
+                }
+            )
     
     return potion_list
 
