@@ -96,7 +96,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     dark_barrel_bought = False
 
     for barrel in wholesale_catalog:
-        if(green_ml == 0 or (green_ml<=blue_ml and green_ml<=red_ml and green_ml<=dark_ml) or red_barrel_bought or blue_barrel_bought):
+        if(green_ml == 0 or (green_ml<=blue_ml and green_ml<=red_ml) or red_barrel_bought or blue_barrel_bought):
             if((barrel.potion_type[1]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>500 and ((barrel.ml_per_barrel+red_ml+green_ml+blue_ml+dark_ml) <10000) and (not green_barrel_bought)):
                 sku = barrel.sku
                 
@@ -108,8 +108,8 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 )
                 budget -= barrel.price
                 green_barrel_bought = True
-        elif(red_ml == 0 or (red_ml<=blue_ml and red_ml<=green_ml and red_ml<=dark_ml) or green_barrel_bought or blue_barrel_bought):
-            if((barrel.potion_type[0]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>500 and (not red_barrel_bought)):
+        elif(red_ml == 0 or (red_ml<=blue_ml and red_ml<=green_ml) or green_barrel_bought or blue_barrel_bought):
+            if((barrel.potion_type[0]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>500 and ((barrel.ml_per_barrel+red_ml+green_ml+blue_ml+dark_ml) <10000)and (not red_barrel_bought)):
                 sku = barrel.sku
                 
                 purchase_plan.append( 
@@ -120,8 +120,8 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 )
                 budget -= barrel.price
                 red_barrel_bought = True
-        elif(blue_ml == 0 or (blue_ml<=red_ml and blue_ml<=green_ml and blue_ml<=dark_ml) or green_barrel_bought or red_barrel_bought):
-            if((barrel.potion_type[2]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>500 and (not blue_barrel_bought)):
+        elif(blue_ml == 0 or (blue_ml<=red_ml and blue_ml<=green_ml) or green_barrel_bought or red_barrel_bought):
+            if((barrel.potion_type[2]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>500 and ((barrel.ml_per_barrel+red_ml+green_ml+blue_ml+dark_ml) <10000)and (not blue_barrel_bought)):
                 sku = barrel.sku
                 
                 purchase_plan.append( 
@@ -132,8 +132,8 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 )
                 budget -= barrel.price
                 blue_barrel_bought = True
-        elif(dark_ml == 0 or (dark_ml<=blue_ml and dark_ml<=green_ml and dark_ml<=red_ml)):
-            if((barrel.potion_type[3]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>500 and (not dark_barrel_bought)):
+        elif(dark_ml == 0 or (dark_ml<=blue_ml and dark_ml<=green_ml)):
+            if((barrel.potion_type[3]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>500 and ((barrel.ml_per_barrel+red_ml+green_ml+blue_ml+dark_ml) <10000)and (not dark_barrel_bought)):
                 sku = barrel.sku
                 
                 purchase_plan.append( 
