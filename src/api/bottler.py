@@ -64,82 +64,88 @@ def get_bottle_plan():
 
     
     potion_list = []
-
-    if(prev_blue_ml>=34 and prev_red_ml>=33 and prev_green_ml>=33):
-        amt = min((prev_blue_ml//34),min((prev_red_ml//33),(prev_green_ml//33)))
-        potion_list.append(
-            {
-                "potion_type": [33,33,34,0],
-                "quantity": amt,
-            }
-        )
-    elif(prev_red_ml>50 and prev_blue_ml>50):
-        amt = min(prev_blue_ml//50,prev_red_ml//50) - 1 
-        potion_list.append(
-            {
-                "potion_type": [50,0,50,0],
-                "quantity": amt,
-            }
-        )
-    elif(prev_green_ml>50 and prev_blue_ml>50):
-        amt = min(prev_blue_ml//50,prev_green_ml//50) - 1
-        potion_list.append(
-            {
-                "potion_type": [0,50,50,0],
-                "quantity": amt,
-            }
-        )
-        prev_green_ml -= amt * 50
-        prev_blue_ml -= amt * 50
-    elif(prev_red_ml>50 and prev_green_ml>50):
-        amt = min(prev_green_ml//50,prev_red_ml//50) - 1
-        potion_list.append(
-            {
-                "potion_type": [50,50,0,0],
-                "quantity": amt,
-            }
-        )
-    elif(cur_gold<100):
-        if(prev_red_ml>=200):
-            amt = (prev_red_ml//100)-1
+    while len(potion_list)<10:
+        if(prev_blue_ml>=34 and prev_red_ml>=33 and prev_green_ml>=33):
+            amt = min(10-len(potion_list),min((prev_blue_ml//34),min((prev_red_ml//33),(prev_green_ml//33))))
             potion_list.append(
                 {
-                    "potion_type": [100,0,0,0],
+                    "potion_type": [33,33,34,0],
                     "quantity": amt,
                 }
             )
-        if(prev_green_ml>=200):
-            amt = (prev_green_ml//100)-1
+            prev_green_ml -= amt*33
+            prev_blue_ml -= amt*34
+            prev_red_ml -= amt*33
+        elif(prev_red_ml>50 and prev_blue_ml>50):
+            amt = min(10-len(potion_list),min(prev_blue_ml//50,prev_red_ml//50) - 1)
             potion_list.append(
                 {
-                    "potion_type": [0,100,0,0],
+                    "potion_type": [50,0,50,0],
                     "quantity": amt,
                 }
             )
-        if(prev_blue_ml>=200):
-            amt = (prev_blue_ml//100)-1
+            prev_blue_ml -= amt*50
+            prev_red_ml -= amt*50
+        elif(prev_green_ml>50 and prev_blue_ml>50):
+            amt = min(10-len(potion_list),min(prev_blue_ml//50,prev_green_ml//50) - 1)
             potion_list.append(
                 {
-                    "potion_type": [0,0,100,0],
+                    "potion_type": [0,50,50,0],
                     "quantity": amt,
                 }
             )
-        if(prev_dark_ml>=200):
-            amt = (prev_dark_ml//100)-1
+            prev_green_ml -= amt * 50
+            prev_blue_ml -= amt * 50
+        elif(prev_red_ml>50 and prev_green_ml>50):
+            amt = min(10-len(potion_list),min(prev_green_ml//50,prev_red_ml//50) - 1)
             potion_list.append(
                 {
-                    "potion_type": [0,0,0,100],
+                    "potion_type": [50,50,0,0],
                     "quantity": amt,
                 }
             )
-    if(prev_green_ml>1000):
-        amt = (prev_green_ml//1000)*10
-        potion_list.append(
-                {
-                    "potion_type": [0,100,0,0],
-                    "quantity": amt,
-                }
-            )
+            prev_green_ml -= amt*50
+            prev_red_ml -= amt*50
+        else:
+            if(prev_red_ml>=200):
+                amt = min(10-len(potion_list),(prev_red_ml//100)-1)
+                potion_list.append(
+                    {
+                        "potion_type": [100,0,0,0],
+                        "quantity": amt,
+                    }
+                )
+                prev_red_ml -= amt*100
+            if(prev_green_ml>=200):
+                amt = min(10-len(potion_list),(prev_green_ml//100)-1)
+                potion_list.append(
+                    {
+                        "potion_type": [0,100,0,0],
+                        "quantity": amt,
+                    }
+                )
+                prev_green_ml -= amt*100
+            
+            if(prev_blue_ml>=200):
+                amt = min(10-len(potion_list),(prev_blue_ml//100)-1)
+                potion_list.append(
+                    {
+                        "potion_type": [0,0,100,0],
+                        "quantity": amt,
+                    }
+                )
+                prev_blue_ml -= amt*100
+            
+            if(prev_dark_ml>=200):
+                amt = min(10-len(potion_list),(prev_dark_ml//100)-1)
+                potion_list.append(
+                    {
+                        "potion_type": [0,0,0,100],
+                        "quantity": amt,
+                    }
+                )
+                prev_dark_ml -= amt*100
+            break
     
     return potion_list
 
