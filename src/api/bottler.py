@@ -66,8 +66,8 @@ def get_bottle_plan():
     potion_list = []
     flag = True
     while cur_pots<50 and (prev_blue_ml>100 or prev_red_ml>100 or prev_green_ml>100) and flag:
-        if(prev_blue_ml>=34 and prev_red_ml>=33 and prev_green_ml>=33 and white_pots < 10):
-            amt = min(min(10,50-cur_pots),min((prev_blue_ml//34),min((prev_red_ml//33),(prev_green_ml//33))))
+        if(prev_blue_ml>=34 and prev_red_ml>=33 and prev_green_ml>=33 and white_pots < 5):
+            amt = min(min(5,50-cur_pots),min((prev_blue_ml//34),min((prev_red_ml//33),(prev_green_ml//33))))
             if(amt>0):
                 potion_list.append(
                     {
