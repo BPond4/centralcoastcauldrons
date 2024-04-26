@@ -16,16 +16,21 @@ def get_catalog():
        
 
     cur_items = []
+    count = 0
 
     for potion in in_stock:
-        cur_items.append(
-            {
-                "sku": potion[0],
-                "name": potion[0],
-                "quantity": potion[1],
-                "price": potion[2],
-                "potion_type": [potion[3], potion[4], potion[5], potion[6]],
-            }
-        )
+        if(count<6):
+            cur_items.append(
+                {
+                    "sku": potion[0],
+                    "name": potion[0],
+                    "quantity": potion[1],
+                    "price": potion[2],
+                    "potion_type": [potion[3], potion[4], potion[5], potion[6]],
+                }
+            )
+            count+=1
+        else:
+            break
     
     return cur_items
