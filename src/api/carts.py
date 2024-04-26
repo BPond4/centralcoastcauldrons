@@ -89,10 +89,11 @@ def post_visits(visit_id: int, customers: list[Customer]):
 def create_cart(new_cart: Customer):
     """ """
     with db.engine.begin() as connection:
+            cur_time = connection.execute(sqlalchemy.text("SELECT day, hour FROM timestamps WHERE id = (SELECT MAX(id) FROM timestamps)")).fetchone()
             cust_id = connection.execute(sqlalchemy.text("INSERT INTO customers (name, level, class) VALUES (:name, :level, :class) RETURNING customer_id"),
                                 {"name": new_cart.customer_name, "level": new_cart.level, "class": new_cart.character_class}).fetchone()[0]
-            cart_id = connection.execute(sqlalchemy.text("INSERT INTO carts (customer_id) VALUES (:customer_id) RETURNING id"),
-                               {"customer_id":cust_id}).fetchone()[0]
+            cart_id = connection.execute(sqlalchemy.text("INSERT INTO carts (customer_id, time_id) VALUES (:customer_id, :time_id) RETURNING id"),
+                               {"customer_id":cust_id, "time_id":cur_time}).fetchone()[0]
             
     return {"cart_id": cart_id}
 
