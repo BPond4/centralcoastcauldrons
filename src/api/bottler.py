@@ -64,7 +64,8 @@ def get_bottle_plan():
         white_pots = (connection.execute(sqlalchemy.text("SELECT quantity FROM potions WHERE id = 11")).fetchone())[0]
     
     potion_list = []
-    while cur_pots<50 and (prev_blue_ml>100 or prev_red_ml>100 or prev_green_ml>100):
+    flag = True
+    while cur_pots<50 and (prev_blue_ml>100 or prev_red_ml>100 or prev_green_ml>100) and flag:
         if(prev_blue_ml>=34 and prev_red_ml>=33 and prev_green_ml>=33 and white_pots < 10):
             amt = min(min(10,50-cur_pots),min((prev_blue_ml//34),min((prev_red_ml//33),(prev_green_ml//33))))
             if(amt>0):
@@ -116,6 +117,7 @@ def get_bottle_plan():
                 prev_green_ml -= amt*50
                 prev_red_ml -= amt*50
         else:
+            flag = False
             if(prev_red_ml>=200):
                 amt = min(min(10,50-cur_pots),(prev_red_ml//100)-1)
                 if(amt>0):
@@ -162,7 +164,7 @@ def get_bottle_plan():
                     )
                     cur_pots+=amt
                     prev_dark_ml -= amt*100
-            break
+            flag = False
         
     print(potion_list)
     return potion_list
