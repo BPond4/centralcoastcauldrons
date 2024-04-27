@@ -10,27 +10,30 @@ def get_catalog():
     """
     Each unique item combination must have only a single price.
     """
-    
-    with db.engine.begin() as connection:
-        in_stock = connection.execute(sqlalchemy.text("SELECT sku, quantity, price, red, green, blue, dark FROM potions WHERE quantity > 0")).fetchall()
-       
-
     cur_items = []
     count = 0
+    with db.engine.begin() as connection:
+        
+        potions = connection.execute(sqlalchemy.text("SELECT id, sku, price, red, green, blue, dark FROM potions")).fetchall()
+        for potion in potions:
+            sub = connection.execute(sqlalchemy.text("SELECT SUM(quantity) FROM cart_items WHERE product_id = :potion_id"),{"potion_id":potion[0]}).fetchone()[0]
+            add = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM bottler_ledgers WHERE potion_id = :potion_id"),{"potion_id":potion[0]}).fetchone()[0]
+            quantity = add-sub
+            if(count<6 and quantity>0):
+                cur_items.append(
+                    {
+                        "sku": potion[1],
+                        "name": potion[1],
+                        "quantity": quantity,
+                        "price": potion[2],
+                        "potion_type": [potion[3], potion[4], potion[5], potion[6]],
+                    }
+                )
+                count+=1
+       
 
-    for potion in in_stock:
-        if(count<6):
-            cur_items.append(
-                {
-                    "sku": potion[0],
-                    "name": potion[0],
-                    "quantity": potion[1],
-                    "price": potion[2],
-                    "potion_type": [potion[3], potion[4], potion[5], potion[6]],
-                }
-            )
-            count+=1
-        else:
-            break
+    
+
+    
     
     return cur_items
