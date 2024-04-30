@@ -28,12 +28,12 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory], order_id: int
                                {"description":description, "timestamp":cur_time}).fetchone()[0]
         
         for potions in potions_delivered:
-            pot_id = connection.execute(sqlalchemy.text("SELECT id FROM potions WHERE red = :red, green = :green, blue = :blue, dark = :dark"),
+            pot_id = connection.execute(sqlalchemy.text("SELECT id FROM potions WHERE red = :red AND green = :green AND blue = :blue AND dark = :dark"),
                                         {"red": potions.potion_type[0], "green": potions.potion_type[1], "blue": potions.potion_type[2], "dark": potions.potion_type[3]}).fetchone()[0]
             result = connection.execute(sqlalchemy.text("INSERT INTO potion_ledgers (transaction_id, potion_id, num_potions) VALUES (:transaction_id, :potion_id, :num_potions)"),
                            {"transaction_id":transaction_id, "potion_id": pot_id, "num_potions":potions.quantity})
             result = connection.execute(sqlalchemy.text("INSERT INTO ml_ledgers (transaction_id, red_ml, green_ml, blue_ml, dark_ml) VALUES (:transaction_id, :red_ml, :green_ml, :blue_ml, :dark_ml)"),
-                           {"transaction_id":transaction_id, "red_ml": -(potions.potion_type[0]), "green_ml":-(potions.potion_type[1]), "blue_ml":-(potions.potion_type[2]), "dark_ml":-(potions.potion_type[3])})
+                           {"transaction_id":transaction_id, "red_ml": -(potions.potion_type[0]*potions.quantity), "green_ml":-(potions.potion_type[1]*potions.quantity), "blue_ml":-(potions.potion_type[2]*potions.quantity), "dark_ml":-(potions.potion_type[3]*potions.quantity)})
 
     print(f"potions delievered: {potions_delivered} order_id: {order_id}")
 
@@ -54,10 +54,10 @@ def get_bottle_plan():
 
             cur_pots = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers")).fetchone()[0]
             
-            white_pots = connection.execute(sqlalchemy.text("SELECT SUM(quantity) FROM potion_ledgers WHERE potion_id = 11")).fetchone()[0]
-            yellow_pots = connection.execute(sqlalchemy.text("SELECT SUM(quantity) FROM potion_ledgers WHERE potion_id = 5")).fetchone()[0]
-            teal_pots = connection.execute(sqlalchemy.text("SELECT SUM(quantity) FROM potion_ledgers WHERE potion_id = 8")).fetchone()[0]
-            purple_pots = connection.execute(sqlalchemy.text("SELECT SUM(quantity) FROM potion_ledgers WHERE potion_id = 6")).fetchone()[0]
+            white_pots = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers WHERE potion_id = 11")).fetchone()[0]
+            yellow_pots = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers WHERE potion_id = 5")).fetchone()[0]
+            teal_pots = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers WHERE potion_id = 8")).fetchone()[0]
+            purple_pots = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers WHERE potion_id = 6")).fetchone()[0]
 
             barrels_bought = connection.execute(sqlalchemy.text("SELECT SUM(red_ml), SUM(green_ml), SUM(blue_ml), SUM(dark_ml) FROM ml_ledgers")).fetchone()
 
