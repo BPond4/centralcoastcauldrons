@@ -55,10 +55,12 @@ def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
     
     with db.engine.begin() as connection:
         cur_time = connection.execute(sqlalchemy.text("SELECT MAX(id) FROM timestamps")).fetchone()[0]
-        transaction_id = connection.execute(sqlalchemy.text("INSERT INTO barrel_transactions (description, time_purchased) VALUES (:description, :time_purchased) RETURNING id"),
+        transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description, timestamp) VALUES (:description, :time_purchased) RETURNING id"),
                                {"description":description, "time_purchased":cur_time}).fetchone()[0]
-        result = connection.execute(sqlalchemy.text("INSERT INTO barrel_ledgers (transaction_id, gold_paid, red_ml, green_ml, blue_ml, dark_ml) VALUES (:transaction_id, :gold_paid, :red_ml, :green_ml, :blue_ml, :dark_ml)"),
-                           {"transaction_id":transaction_id, "gold_paid":cost, "red_ml":red_ml, "green_ml":green_ml, "blue_ml":blue_ml, "dark_ml":dark_ml})
+        result = connection.execute(sqlalchemy.text("INSERT INTO ml_ledgers (transaction_id, red_ml, green_ml, blue_ml, dark_ml) VALUES (:transaction_id, :red_ml, :green_ml, :blue_ml, :dark_ml)"),
+                           {"transaction_id":transaction_id, "red_ml":red_ml, "green_ml":green_ml, "blue_ml":blue_ml, "dark_ml":dark_ml})
+        result = connection.execute(sqlalchemy.text("INSERT INTO gold_ledgers (transaction_id, gold_diff) VALUES (:transaction_id, :gold_diff)"),
+                           {"transaction_id":transaction_id, "gold_diff":-cost})
 
     return result
 
@@ -68,23 +70,14 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     """ """
     print(wholesale_catalog)
     with db.engine.begin() as connection:
-        barrels_bought = connection.execute(sqlalchemy.text("SELECT SUM(gold_paid), SUM(red_ml), SUM(green_ml), SUM(blue_ml), SUM(dark_ml) FROM barrel_ledgers")).fetchone()
-        potions = connection.execute(sqlalchemy.text("SELECT potion_id, num_potions FROM bottler_ledgers")).fetchall()
+        budget = connection.execute(sqlalchemy.text("SELECT SUM(gold_diff) FROM gold_ledgers")).fetchone()[0]
 
-        budget = connection.execute(sqlalchemy.text("SELECT SUM(gold_paid) FROM cart_items")).fetchone()[0]
-        budget -= barrels_bought[0]
-        red_ml = barrels_bought[1]
-        green_ml = barrels_bought[2]
-        blue_ml = barrels_bought[3]
-        dark_ml = barrels_bought[4]
+        barrels_bought = connection.execute(sqlalchemy.text("SELECT SUM(red_ml), SUM(green_ml), SUM(blue_ml), SUM(dark_ml) FROM barrel_ledgers")).fetchone()
 
-        for potion in potions:
-            mls = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM potions WHERE id = :potion_id"),{"potion_id":potion[0]}).fetchone()
-            red_ml -= (mls[0]*potion[1])
-            green_ml -= (mls[1]*potion[1])
-            blue_ml -= (mls[2]*potion[1])
-            dark_ml -= (mls[3]*potion[1])
-
+        red_ml = barrels_bought[0]
+        green_ml = barrels_bought[1]
+        blue_ml = barrels_bought[2]
+        dark_ml = barrels_bought[3]
 
     purchase_plan = []
     blue_barrel_bought = False

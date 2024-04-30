@@ -123,12 +123,21 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
     """ """
     gold_gained = 0
     total_potions = 0
+    description = (f"Cart Checkout with id: {cart_id}")
     with db.engine.begin() as connection:
-            rows = connection.execute(sqlalchemy.text("SELECT * FROM cart_items WHERE cart_id = :cart_id"), {"cart_id": cart_id})
+            cur_time = connection.execute(sqlalchemy.text("SELECT MAX(id) FROM timestamps")).fetchone()[0]
+            transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description, timestamp) VALUES (:description, :timestamp) RETURNING id"),
+                               {"description":description, "timestamp":cur_time}).fetchone()[0]
+            rows = connection.execute(sqlalchemy.text("SELECT product_id, quantity, gold_paid FROM cart_items WHERE cart_id = :cart_id"), {"cart_id": cart_id}).fetchall()
             if rows:
                 for cart_item in rows:
-                    total_potions += cart_item.quantity
-                    gold_gained += (connection.execute(sqlalchemy.text("SELECT price FROM potions WHERE id = :prod_id"),{"prod_id": cart_item.product_id}).fetchone()[0])*cart_item.quantity
+                    total_potions += cart_item[1]
+                    gold_gained += cart_item[2]
+                    potion_id = cart_item[0]
+                    connection.execute(sqlalchemy.text("INSERT INTO potion_ledgers (transaction_id, potion_id, num_potions) VALUES (:transaction_id, :potion_id, :num_potions)"),
+                           {"transaction_id":transaction_id, "potion_id":potion_id, "num_potions":-total_potions})
+                    connection.execute(sqlalchemy.text("INSERT INTO gold_ledgers (transaction_id, gold_diff) VALUES (:transaction_id, :gold_diff)"),
+                           {"transaction_id":transaction_id, "gold_diff":gold_gained})
                 
             else:
                 raise Exception("No items in cart")
