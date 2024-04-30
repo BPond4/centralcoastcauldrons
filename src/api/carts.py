@@ -106,9 +106,11 @@ class CartItem(BaseModel):
 def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
     """ """
     with db.engine.begin() as connection:
-            prod_id = connection.execute(sqlalchemy.text("SELECT id FROM potions WHERE sku = :item_sku"), {"item_sku":item_sku}).fetchone()[0]
-            cust_id = connection.execute(sqlalchemy.text("INSERT INTO cart_items (cart_id, product_id, quantity) VALUES (:cart_id, :product_id, :quantity)"),
-                                {"cart_id": cart_id, "product_id": prod_id, "quantity": cart_item.quantity})
+            potion_info = connection.execute(sqlalchemy.text("SELECT id, price FROM potions WHERE sku = :item_sku"), {"item_sku":item_sku}).fetchone()
+            prod_id = potion_info[0]
+            price = potion_info[1]*cart_item.quantity
+            cust_id = connection.execute(sqlalchemy.text("INSERT INTO cart_items (cart_id, product_id, quantity, gold_paid) VALUES (:cart_id, :product_id, :quantity, :gold_paid)"),
+                                {"cart_id": cart_id, "product_id": prod_id, "quantity": cart_item.quantity, "gold_paid":price})
 
     return "OK"
 
@@ -121,15 +123,22 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
     """ """
     gold_gained = 0
     total_potions = 0
+    description = (f"Cart Checkout with id: {cart_id}")
     with db.engine.begin() as connection:
-            rows = connection.execute(sqlalchemy.text("SELECT * FROM cart_items WHERE cart_id = :cart_id"), {"cart_id": cart_id})
+            cur_time = connection.execute(sqlalchemy.text("SELECT MAX(id) FROM timestamps")).fetchone()[0]
+            transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description, timestamp) VALUES (:description, :timestamp) RETURNING id"),
+                               {"description":description, "timestamp":cur_time}).fetchone()[0]
+            rows = connection.execute(sqlalchemy.text("SELECT product_id, quantity, gold_paid FROM cart_items WHERE cart_id = :cart_id"), {"cart_id": cart_id}).fetchall()
             if rows:
                 for cart_item in rows:
-                    total_potions += cart_item.quantity
-                    gold_gained += (connection.execute(sqlalchemy.text("SELECT price FROM potions WHERE id = :prod_id"),{"prod_id": cart_item.product_id}).fetchone()[0])*cart_item.quantity
-                    connection.execute(sqlalchemy.text("UPDATE potions SET quantity = quantity - :amt WHERE id = :prod_id"),{"amt": cart_item.quantity, "prod_id": cart_item.product_id})
-                connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = gold + :gold_gained, num_potions = num_potions - :total_potions"),{"gold_gained":gold_gained, "total_potions": total_potions})
-    
+                    total_potions += cart_item[1]
+                    gold_gained += cart_item[2]
+                    potion_id = cart_item[0]
+                    connection.execute(sqlalchemy.text("INSERT INTO potion_ledgers (transaction_id, potion_id, num_potions) VALUES (:transaction_id, :potion_id, :num_potions)"),
+                           {"transaction_id":transaction_id, "potion_id":potion_id, "num_potions":-total_potions})
+                    connection.execute(sqlalchemy.text("INSERT INTO gold_ledgers (transaction_id, gold_diff) VALUES (:transaction_id, :gold_diff)"),
+                           {"transaction_id":transaction_id, "gold_diff":gold_gained})
+                
             else:
                 raise Exception("No items in cart")
 

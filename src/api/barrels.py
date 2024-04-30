@@ -23,7 +23,7 @@ class Barrel(BaseModel):
 def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
     """ """
     print(f"barrels delievered: {barrels_delivered} order_id: {order_id}")
-
+    description = (f"barrels delivered: {barrels_delivered}")
     # with db.engine.begin() as connection:
     #     try:
     #         connection.execute(
@@ -54,25 +54,13 @@ def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
     print(f"gold_paid: {cost} red_ml: {red_ml} green_ml: {green_ml} blue_ml: {blue_ml} dark_ml: {dark_ml}")
     
     with db.engine.begin() as connection:
-        prev_green_ml = (connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).fetchone())[0]
-        prev_red_ml = (connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).fetchone())[0]
-        prev_blue_ml = (connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).fetchone())[0]
-        prev_dark_ml = (connection.execute(sqlalchemy.text("SELECT num_dark_ml FROM global_inventory")).fetchone())[0]
-        prev_gold = (connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).fetchone())[0]
-
-    new_green_ml = green_ml+prev_green_ml
-    new_red_ml = red_ml+prev_red_ml
-    new_blue_ml = blue_ml+prev_blue_ml
-    new_dark_ml = dark_ml+prev_dark_ml
-    new_gold = prev_gold-cost
-    with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_ml = :new_green_ml, num_red_ml = :new_red_ml, num_blue_ml = :new_blue_ml, num_dark_ml = :new_dark_ml, gold = :new_gold"),
-        {"new_green_ml": new_green_ml,"new_red_ml": new_red_ml, "new_blue_ml": new_blue_ml, "new_dark_ml": new_dark_ml, "new_gold": new_gold})
-    
-    print(new_red_ml)
-    print(new_green_ml)
-    print(new_blue_ml)
-    print(new_dark_ml)
+        cur_time = connection.execute(sqlalchemy.text("SELECT MAX(id) FROM timestamps")).fetchone()[0]
+        transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description, timestamp) VALUES (:description, :time_purchased) RETURNING id"),
+                               {"description":description, "time_purchased":cur_time}).fetchone()[0]
+        result = connection.execute(sqlalchemy.text("INSERT INTO ml_ledgers (transaction_id, red_ml, green_ml, blue_ml, dark_ml) VALUES (:transaction_id, :red_ml, :green_ml, :blue_ml, :dark_ml)"),
+                           {"transaction_id":transaction_id, "red_ml":red_ml, "green_ml":green_ml, "blue_ml":blue_ml, "dark_ml":dark_ml})
+        result = connection.execute(sqlalchemy.text("INSERT INTO gold_ledgers (transaction_id, gold_diff) VALUES (:transaction_id, :gold_diff)"),
+                           {"transaction_id":transaction_id, "gold_diff":-cost})
 
     return result
 
@@ -82,13 +70,17 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     """ """
     print(wholesale_catalog)
     with db.engine.begin() as connection:
-        red_ml = connection.execute(sqlalchemy.text("SELECT num_red_ml FROM global_inventory")).fetchone()[0]
-        green_ml = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).fetchone()[0]
-        blue_ml = connection.execute(sqlalchemy.text("SELECT num_blue_ml FROM global_inventory")).fetchone()[0]
-        dark_ml = connection.execute(sqlalchemy.text("SELECT num_dark_ml FROM global_inventory")).fetchone()[0]
+        budget = connection.execute(sqlalchemy.text("SELECT SUM(gold_diff) FROM gold_ledgers")).fetchone()[0]
 
-        budget = (connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory")).fetchone())[0]
-        ml_cap = (connection.execute(sqlalchemy.text("SELECT ml_capacity FROM capacity")).fetchone())[0]
+        barrels_bought = connection.execute(sqlalchemy.text("SELECT SUM(red_ml), SUM(green_ml), SUM(blue_ml), SUM(dark_ml) FROM barrel_ledgers")).fetchone()
+
+
+        red_ml = barrels_bought[0]
+        green_ml = barrels_bought[1]
+        blue_ml = barrels_bought[2]
+        dark_ml = barrels_bought[3]
+
+
 
     purchase_plan = []
     blue_barrel_bought = False
