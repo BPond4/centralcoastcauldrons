@@ -58,6 +58,14 @@ def get_bottle_plan():
             yellow_pots = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers WHERE potion_id = 5")).fetchone()[0]
             teal_pots = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers WHERE potion_id = 8")).fetchone()[0]
             purple_pots = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers WHERE potion_id = 6")).fetchone()[0]
+            if(not white_pots):
+                white_pots=0
+            if(not yellow_pots):
+                yellow_pots =0
+            if(not teal_pots):
+                teal_pots=0
+            if(not purple_pots):
+                purple_pots=0
 
             barrels_bought = connection.execute(sqlalchemy.text("SELECT SUM(red_ml), SUM(green_ml), SUM(blue_ml), SUM(dark_ml) FROM ml_ledgers")).fetchone()
 
