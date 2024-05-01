@@ -92,7 +92,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
 
     for barrel in wholesale_catalog:
         if(green_ml == 0 or (green_ml<=blue_ml and green_ml<=red_ml) or red_barrel_bought or blue_barrel_bought):
-            if((barrel.potion_type[1]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>500 and ((barrel.ml_per_barrel+total_ml) <ml_cap) and (not green_barrel_bought)):
+            if((barrel.potion_type[1]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>=500 and ((barrel.ml_per_barrel+total_ml) <ml_cap) and (not green_barrel_bought)):
                 sku = barrel.sku
                 
                 purchase_plan.append( 
@@ -105,7 +105,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 total_ml+=barrel.ml_per_barrel
                 green_barrel_bought = True
         elif(red_ml == 0 or (red_ml<=blue_ml and red_ml<=green_ml) or green_barrel_bought or blue_barrel_bought):
-            if((barrel.potion_type[0]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>500 and ((barrel.ml_per_barrel+total_ml) <ml_cap)and (not red_barrel_bought)):
+            if((barrel.potion_type[0]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>=500 and ((barrel.ml_per_barrel+total_ml) <ml_cap)and (not red_barrel_bought)):
                 sku = barrel.sku
                 
                 purchase_plan.append( 
@@ -118,7 +118,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 total_ml+=barrel.ml_per_barrel
                 red_barrel_bought = True
         elif(blue_ml == 0 or (blue_ml<=red_ml and blue_ml<=green_ml) or green_barrel_bought or red_barrel_bought):
-            if((barrel.potion_type[2]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>500 and ((barrel.ml_per_barrel+total_ml) <ml_cap)and (not blue_barrel_bought)):
+            if((barrel.potion_type[2]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>=500 and ((barrel.ml_per_barrel+total_ml) <ml_cap)and (not blue_barrel_bought)):
                 sku = barrel.sku
                 
                 purchase_plan.append( 
