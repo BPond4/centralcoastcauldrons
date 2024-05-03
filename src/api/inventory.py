@@ -34,11 +34,28 @@ def get_capacity_plan():
     Start with 1 capacity for 50 potions and 1 capacity for 10000 ml of potion. Each additional 
     capacity unit costs 1000 gold.
     """
-    
-    
+    with db.engine.begin() as connection:
+        pot_cap = (connection.execute(sqlalchemy.text("SELECT potion_capacity FROM capacity")).fetchone())[0]
+        ml_cap = (connection.execute(sqlalchemy.text("SELECT ml_capacity FROM capacity")).fetchone())[0]
+        cur_gold = connection.execute(sqlalchemy.text("SELECT SUM(gold_diff) FROM gold_ledgers")).fetchone()[0]
+        total_potions = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers")).fetchone()[0]
+        mls = connection.execute(sqlalchemy.text("SELECT SUM(red_ml), SUM(green_ml), SUM(blue_ml), SUM(dark_ml) FROM ml_ledgers")).fetchone()
+        total_ml = mls[0]+mls[1]+mls[2]+mls[3]
+
+    potion_increase = 0
+    ml_increase = 0
+    if((total_potions/pot_cap>0.75) and (cur_gold>3000)):
+        potion_increase = 1
+        cur_gold -= 1000
+
+    if((total_ml/ml_cap>0.75) and (cur_gold>3000)):
+        ml_increase = 1
+        cur_gold -=1000
+
+    print(f"Buying {potion_increase} potion capacity and {ml_increase} ml capacity")
     return {
-        "potion_capacity": 0,
-        "ml_capacity": 0
+        "potion_capacity": potion_increase,
+        "ml_capacity": ml_increase
         }
 
 class CapacityPurchase(BaseModel):
