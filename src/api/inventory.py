@@ -69,10 +69,16 @@ def deliver_capacity_plan(capacity_purchase : CapacityPurchase, order_id: int):
     Start with 1 capacity for 50 potions and 1 capacity for 10000 ml of potion. Each additional 
     capacity unit costs 1000 gold.
     """
+    description = "Increasing capacity"
     count = capacity_purchase.potion_capacity + capacity_purchase.ml_capacity
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = gold - :count"), {"count": count*1000})
         connection.execute(sqlalchemy.text("UPDATE capacity SET potion_capacity = potion_capacity + :pot_cap, ml_capacity = ml_capacity + :ml_cap"),
                            {"pot_cap": capacity_purchase.potion_capacity*50, "ml_cap": capacity_purchase.ml_capacity*10000})
+        cur_time = connection.execute(sqlalchemy.text("SELECT MAX(id) FROM timestamps")).fetchone()[0]
+        transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description, timestamp) VALUES (:description, :time_purchased) RETURNING id"),
+                               {"description":description, "time_purchased":cur_time}).fetchone()[0]
+        result = connection.execute(sqlalchemy.text("INSERT INTO gold_ledgers (transaction_id, gold_diff) VALUES (:transaction_id, :gold_diff)"),
+                           {"transaction_id":transaction_id, "gold_diff":(-1000*count)})
 
     return result
