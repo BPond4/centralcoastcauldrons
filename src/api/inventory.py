@@ -45,12 +45,20 @@ def get_capacity_plan():
     potion_increase = 0
     ml_increase = 0
     if((total_potions/pot_cap>0.75) and (cur_gold>2000)):
-        potion_increase = 1
-        cur_gold -= 1000
+        if(cur_gold>5000):
+            potion_increase = 2
+            cur_gold-=2000
+        else:
+            potion_increase = 1
+            cur_gold -= 1000
 
     if((total_ml/ml_cap>0.75) and (cur_gold>2000)):
-        ml_increase = 1
-        cur_gold -=1000
+        if(cur_gold>5000):
+            ml_increase = 2
+            cur_gold-=2000
+        else:
+            ml_increase = 1
+            cur_gold -= 1000
 
     print(f"Buying {potion_increase} potion capacity and {ml_increase} ml capacity")
     return {
