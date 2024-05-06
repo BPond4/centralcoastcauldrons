@@ -19,6 +19,5 @@ def reset():
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_potions = :num_potions, num_green_ml = :new_green_ml, num_red_ml = :new_red_ml, num_blue_ml = :new_blue_ml, num_dark_ml = :new_dark_ml, gold = :new_gold"),
         {"num_potions": 0, "new_green_ml": 0, "new_red_ml": 0, "new_blue_ml": 0, "new_dark_ml": 0, "new_gold": 100})
-        result2 = connection.execute(sqlalchemy.text("UPDATE potions SET quantity = :baseline"),{"baseline": 0})
     return result
 
