@@ -84,7 +84,7 @@ def get_bottle_plan():
         yellow_cap = pot_cap//4
         green_cap = pot_cap//4
         blue_cap = pot_cap//4
-        red_cap = 0
+        red_cap = pot_cap//10
         teal_cap = 0
         purple_cap = 0
     elif(cur_day == "Blesseday"):
@@ -92,14 +92,14 @@ def get_bottle_plan():
         yellow_cap = pot_cap//4
         green_cap = pot_cap//4
         blue_cap = pot_cap//4
-        red_cap = 0
+        red_cap = pot_cap//10
         teal_cap = 0
         purple_cap = 0
     elif(cur_day == "Soulday"):
         white_cap = pot_cap//2
         yellow_cap = pot_cap//4
         green_cap = pot_cap//4
-        blue_cap = 0
+        blue_cap = pot_cap//10
         red_cap = pot_cap//5
         teal_cap = 0
         purple_cap = pot_cap//5
@@ -124,7 +124,7 @@ def get_bottle_plan():
         yellow_cap = pot_cap//3
         green_cap = pot_cap//4
         blue_cap = pot_cap//6
-        red_cap = 0
+        red_cap = pot_cap//10
         teal_cap = 0
         purple_cap = pot_cap//5
     elif(cur_day == "Hearthday"):
@@ -132,7 +132,7 @@ def get_bottle_plan():
         yellow_cap = pot_cap//3
         green_cap = pot_cap//4
         blue_cap = pot_cap//6
-        red_cap = 0
+        red_cap = pot_cap//10
         teal_cap = 0
         purple_cap = 0
     
