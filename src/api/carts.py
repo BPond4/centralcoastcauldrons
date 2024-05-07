@@ -59,20 +59,20 @@ def search_orders(
     #sql_query = """SELECT ci.quantity, ci.gold_paid, p.sku, c.name, t.time FROM cart_items ci JOIN potions p ON ci.product_id = p.id JOIN carts ca ON ci.cart_id = ca.id JOIN customers c ON ca.customer_id = c.customer_id JOIN timestamps t ON ca.time_id = t.id WHERE c.name LIKE :name AND p.sku LIKE :potionsku ORDER BY {order_col} {sort_direction}"""
     #for testing
     sql_query = """SELECT ci.quantity, ci.gold_paid, p.sku, c.name, t.day, t.hour FROM cart_items ci JOIN potions p ON ci.product_id = p.id JOIN carts ca ON ci.cart_id = ca.id JOIN customers c ON ca.customer_id = c.customer_id JOIN timestamps t ON ca.time_id = t.id WHERE c.name LIKE :name AND p.sku LIKE :potionsku ORDER BY {order_col} {sort_direction}"""
-
-    if(sort_col == "timestamp"):
-         sort_col = "t.time"
-    elif(sort_col == "customer_name"):
-         sort_col = "c.name"
-    elif(sort_col == "item_sku"):
-         sort_col = "p.sku"
-    elif(sort_col == "line_item_total"):
-         sort_col = "ci.gold_paid"
+    correct_col = ""
+    if(sort_col.value == "timestamp"):
+         correct_col = "t.time"
+    elif(sort_col.value == "customer_name"):
+         correct_col = "c.name"
+    elif(sort_col.value == "item_sku"):
+         correct_col = "p.sku"
+    elif(sort_col.value == "line_item_total"):
+         correct_col = "ci.gold_paid"
     # Define the parameters for the query
     params = {
         "name": f'%{customer_name}%',
         "potionsku": f'%{potion_sku}%',
-        "order_col": sort_col.value,  # This should be the column name to order by
+        "order_col": correct_col,  # This should be the column name to order by
         "sort_direction": sort_order.upper()  # Convert sort_order to uppercase ('ASC' or 'DESC')
     }
 
