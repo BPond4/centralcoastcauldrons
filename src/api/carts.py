@@ -13,10 +13,10 @@ router = APIRouter(
 )
 
 class search_sort_options(str, Enum):
-    customer_name = "c.name"
-    item_sku = "p.sku"
-    line_item_total = "ci.gold_paid"
-    timestamp = "t.time"
+    customer_name = "customer_name"
+    item_sku = "item_sku"
+    line_item_total = "line_item_total"
+    timestamp = "timestamp"
 
 class search_sort_order(str, Enum):
     asc = "asc"
