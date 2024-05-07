@@ -60,6 +60,14 @@ def search_orders(
     #for testing
     sql_query = """SELECT ci.quantity, ci.gold_paid, p.sku, c.name, t.day, t.hour FROM cart_items ci JOIN potions p ON ci.product_id = p.id JOIN carts ca ON ci.cart_id = ca.id JOIN customers c ON ca.customer_id = c.customer_id JOIN timestamps t ON ca.time_id = t.id WHERE c.name LIKE :name AND p.sku LIKE :potionsku ORDER BY {order_col} {sort_direction}"""
 
+    if(sort_col == "timestamp"):
+         sort_col = "t.time"
+    elif(sort_col == "customer_name"):
+         sort_col = "c.name"
+    elif(sort_col == "item_sku"):
+         sort_col = "p.sku"
+    elif(sort_col == "line_item_total"):
+         sort_col = "ci.gold_paid"
     # Define the parameters for the query
     params = {
         "name": f'%{customer_name}%',
@@ -70,6 +78,7 @@ def search_orders(
 
     # Construct the formatted SQL query with placeholders filled
     formatted_sql_query = sql_query.format(order_col=params["order_col"], sort_direction=params["sort_direction"])
+    
 
     # Execute the query using connection.execute() with sqlalchemy.text()
     with db.engine.begin() as connection:
