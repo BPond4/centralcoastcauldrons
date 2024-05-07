@@ -13,10 +13,10 @@ router = APIRouter(
 )
 
 class search_sort_options(str, Enum):
-    customer_name = "customer_name"
-    item_sku = "item_sku"
-    line_item_total = "line_item_total"
-    timestamp = "timestamp"
+    customer_name = "c.name"
+    item_sku = "p.sku"
+    line_item_total = "ci.gold_paid"
+    timestamp = "t.time"
 
 class search_sort_order(str, Enum):
     asc = "asc"
@@ -54,19 +54,66 @@ def search_orders(
     Your results must be paginated, the max results you can return at any
     time is 5 total line items.
     """
+    
+    
+    sql_query = """SELECT ci.quantity, ci.gold_paid, p.sku, c.name, t.time FROM cart_items ci JOIN potions p ON ci.product_id = p.id JOIN carts ca ON ci.cart_id = ca.id JOIN customers c ON ca.customer_id = c.customer_id JOIN timestamps t ON ca.time_id = t.id WHERE c.name LIKE :name AND p.sku LIKE :potionsku ORDER BY {order_col} {sort_direction}"""
 
+    # Define the parameters for the query
+    params = {
+        "name": f'%{customer_name}%',
+        "potionsku": f'%{potion_sku}%',
+        "order_col": sort_col.value,  # This should be the column name to order by
+        "sort_direction": sort_order.upper()  # Convert sort_order to uppercase ('ASC' or 'DESC')
+    }
+
+    # Construct the formatted SQL query with placeholders filled
+    formatted_sql_query = sql_query.format(order_col=params["order_col"], sort_direction=params["sort_direction"])
+
+    # Execute the query using connection.execute() with sqlalchemy.text()
+    with db.engine.begin() as connection:
+        rows = connection.execute(sqlalchemy.text(formatted_sql_query), params).fetchall()
+    
+    rowlist = []
+    i = 0
+    for row in rows:
+         i+=1
+         rowlist.append({
+              "line_item_id": i,
+              "item_sku": f"{row[0]} {row[2]}",
+              "customer_name": row[3],
+              "line_item_total": row[1],
+              "timestamp": row[4]
+         })
+    if search_page == "":
+         previous = ""
+         pagenum = 1
+    elif int(search_page)<5:
+         previous = ""
+         pagenum = int(search_page)
+    else:
+         previous = str(int(search_page)-5)
+         pagenum = int(search_page)
+
+    if search_page == "":
+         if(len(rowlist)<=5):
+              next = ""
+         else:
+              next= 5
+    elif(len(rowlist)>(int(search_page)+5)):
+         next = str(int(search_page)+5)
+    else:
+         next = ""
+
+    returnlist = []
+    count = 0
+    while count<5 and (pagenum<=len(rowlist)):
+         count+=1
+         returnlist.append(rowlist[pagenum-1])
+         pagenum+=1
     return {
-        "previous": "",
-        "next": "",
-        "results": [
-            {
-                "line_item_id": 1,
-                "item_sku": "1 oblivion potion",
-                "customer_name": "Scaramouche",
-                "line_item_total": 50,
-                "timestamp": "2021-01-01T00:00:00Z",
-            }
-        ],
+        "previous": previous,
+        "next": next,
+        "results": returnlist
     }
 
 
