@@ -55,10 +55,9 @@ def search_orders(
     time is 5 total line items.
     """
     
-    #for prod
-    #sql_query = """SELECT ci.quantity, ci.gold_paid, p.sku, c.name, t.time FROM cart_items ci JOIN potions p ON ci.product_id = p.id JOIN carts ca ON ci.cart_id = ca.id JOIN customers c ON ca.customer_id = c.customer_id JOIN timestamps t ON ca.time_id = t.id WHERE c.name LIKE :name AND p.sku LIKE :potionsku ORDER BY {order_col} {sort_direction}"""
-    #for testing
-    sql_query = """SELECT ci.quantity, ci.gold_paid, p.sku, c.name, t.day, t.hour FROM cart_items ci JOIN potions p ON ci.product_id = p.id JOIN carts ca ON ci.cart_id = ca.id JOIN customers c ON ca.customer_id = c.customer_id JOIN timestamps t ON ca.time_id = t.id WHERE c.name LIKE :name AND p.sku LIKE :potionsku ORDER BY {order_col} {sort_direction}"""
+    
+    sql_query = """SELECT ci.quantity, ci.gold_paid, p.sku, c.name, t.time FROM cart_items ci JOIN potions p ON ci.product_id = p.id JOIN carts ca ON ci.cart_id = ca.id JOIN customers c ON ca.customer_id = c.customer_id JOIN timestamps t ON ca.time_id = t.id WHERE c.name LIKE :name AND p.sku LIKE :potionsku ORDER BY {order_col} {sort_direction}"""
+    
     correct_col = ""
     if(sort_col.value == "timestamp"):
          correct_col = "t.time"
@@ -87,15 +86,14 @@ def search_orders(
     rowlist = []
     i = 0
     for row in rows:
-         time = f"{row[4]}, {row[5]}"
+         
          i+=1
          rowlist.append({
               "line_item_id": i,
               "item_sku": f"{row[0]} {row[2]}",
               "customer_name": row[3],
               "line_item_total": row[1],
-              #"timestamp": row[4]
-              "timestamp": time
+              "timestamp": row[4]
          })
     if search_page == "":
          previous = ""
