@@ -69,6 +69,13 @@ def get_bottle_plan():
                 teal_pots=0
             if(not purple_pots):
                 purple_pots=0
+            if(not red_pots):
+                red_pots=0
+            if(not green_pots):
+                green_pots=0
+            if(not blue_pots):
+                blue_pots=0
+            
 
             barrels_bought = connection.execute(sqlalchemy.text("SELECT SUM(red_ml), SUM(green_ml), SUM(blue_ml), SUM(dark_ml) FROM ml_ledgers")).fetchone()
 
@@ -104,7 +111,7 @@ def get_bottle_plan():
         teal_cap = 0
         purple_cap = pot_cap//5
     elif(cur_day == "Edgeday"):
-        white_cap = pot_cap//5
+        white_cap = pot_cap//3
         yellow_cap = pot_cap//5
         green_cap = pot_cap//6
         blue_cap = pot_cap//6
@@ -112,7 +119,7 @@ def get_bottle_plan():
         teal_cap = 0
         purple_cap = pot_cap//2
     elif(cur_day == "Bloomday"):
-        white_cap = pot_cap//5
+        white_cap = pot_cap//3
         yellow_cap = pot_cap//5
         green_cap = pot_cap//5
         blue_cap = pot_cap//6
@@ -120,7 +127,7 @@ def get_bottle_plan():
         teal_cap = 0
         purple_cap = pot_cap//2
     elif(cur_day == "Arcanaday"):
-        white_cap = pot_cap//3
+        white_cap = pot_cap//2
         yellow_cap = pot_cap//3
         green_cap = pot_cap//4
         blue_cap = pot_cap//6
@@ -128,7 +135,7 @@ def get_bottle_plan():
         teal_cap = 0
         purple_cap = pot_cap//5
     elif(cur_day == "Hearthday"):
-        white_cap = pot_cap//3
+        white_cap = pot_cap//2
         yellow_cap = pot_cap//3
         green_cap = pot_cap//4
         blue_cap = pot_cap//6
