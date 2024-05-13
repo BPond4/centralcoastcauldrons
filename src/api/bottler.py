@@ -147,7 +147,7 @@ def get_bottle_plan():
     flag = True
     while cur_pots<pot_cap and (prev_blue_ml>100 or prev_red_ml>100 or prev_green_ml>100) and flag:
         if(prev_blue_ml>=34 and prev_red_ml>=33 and prev_green_ml>=33 and white_pots < (white_cap)):
-            amt = min(white_cap-white_pots,min((prev_blue_ml//34),min((prev_red_ml//33),(prev_green_ml//33))))
+            amt = min(min(pot_cap-cur_pots,white_cap-white_pots),min((prev_blue_ml//34),min((prev_red_ml//33),(prev_green_ml//33))))
             
             if(amt>0):
                 potion_list.append(
@@ -162,7 +162,7 @@ def get_bottle_plan():
                 prev_blue_ml -= amt*34
                 prev_red_ml -= amt*33
         elif(prev_red_ml>100 and prev_blue_ml>100 and purple_pots < (purple_cap)):
-            amt = min(purple_cap-purple_pots,min(prev_blue_ml//50,prev_red_ml//50) - 1)
+            amt = min(min(pot_cap-cur_pots,purple_cap-purple_pots),min(prev_blue_ml//50,prev_red_ml//50) - 1)
             if(amt>0):
                 potion_list.append(
                     {
@@ -175,7 +175,7 @@ def get_bottle_plan():
                 prev_blue_ml -= amt*50
                 prev_red_ml -= amt*50
         elif(prev_green_ml>100 and prev_blue_ml>100 and teal_pots < (teal_cap)):
-            amt = min(teal_cap-teal_pots,min(prev_blue_ml//50,prev_green_ml//50) - 1)
+            amt = min(min(pot_cap-cur_pots,teal_cap-teal_pots),min(prev_blue_ml//50,prev_green_ml//50) - 1)
             if(amt>0):
                 potion_list.append(
                     {
@@ -188,7 +188,7 @@ def get_bottle_plan():
                 prev_green_ml -= amt * 50
                 prev_blue_ml -= amt * 50
         elif(prev_red_ml>100 and prev_green_ml>100 and yellow_pots < yellow_cap):
-            amt = min(yellow_cap-yellow_pots,min(prev_green_ml//50,prev_red_ml//50) - 1)
+            amt = min(min(pot_cap-cur_pots,yellow_cap-yellow_pots),min(prev_green_ml//50,prev_red_ml//50) - 1)
             if(amt>0):
                 potion_list.append(
                     {
@@ -203,7 +203,7 @@ def get_bottle_plan():
         else:
             flag = False
             if(prev_red_ml>=200 and red_pots<red_cap):
-                amt = min(red_cap-red_pots,(prev_red_ml//100)-1)
+                amt = min(min(pot_cap-cur_pots,red_cap-red_pots),(prev_red_ml//100)-1)
                 if(amt>0):
                     potion_list.append(
                         {
@@ -214,7 +214,7 @@ def get_bottle_plan():
                     cur_pots+=amt
                     prev_red_ml -= amt*100
             if(prev_green_ml>=200 and green_pots<green_cap):
-                amt = min(red_cap-red_pots,(prev_green_ml//100)-1)
+                amt = min(min(pot_cap-cur_pots,red_cap-red_pots),(prev_green_ml//100)-1)
                 if(amt>0):
                     potion_list.append(
                         {
@@ -226,7 +226,7 @@ def get_bottle_plan():
                     prev_green_ml -= amt*100
             
             if(prev_blue_ml>=200 and blue_pots<blue_cap):
-                amt = min(blue_cap-blue_pots,(prev_blue_ml//100)-1)
+                amt = min(min(pot_cap-cur_pots,blue_cap-blue_pots),(prev_blue_ml//100)-1)
                 if(amt>0):
                     potion_list.append(
                         {
