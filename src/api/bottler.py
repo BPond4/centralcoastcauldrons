@@ -87,7 +87,7 @@ def get_bottle_plan():
             pot_cap = (connection.execute(sqlalchemy.text("SELECT potion_capacity FROM capacity")).fetchone())[0]
 
     if(cur_day == "Crownday"):
-        white_cap = pot_cap//2
+        white_cap = pot_cap//4
         yellow_cap = pot_cap//4
         green_cap = pot_cap//4
         blue_cap = pot_cap//4
@@ -95,7 +95,7 @@ def get_bottle_plan():
         teal_cap = 0
         purple_cap = 0
     elif(cur_day == "Blesseday"):
-        white_cap = pot_cap//2
+        white_cap = pot_cap//4
         yellow_cap = pot_cap//4
         green_cap = pot_cap//4
         blue_cap = pot_cap//4
@@ -103,7 +103,7 @@ def get_bottle_plan():
         teal_cap = 0
         purple_cap = 0
     elif(cur_day == "Soulday"):
-        white_cap = pot_cap//2
+        white_cap = pot_cap//4
         yellow_cap = pot_cap//4
         green_cap = pot_cap//4
         blue_cap = pot_cap//10
@@ -127,7 +127,7 @@ def get_bottle_plan():
         teal_cap = 0
         purple_cap = pot_cap//2
     elif(cur_day == "Arcanaday"):
-        white_cap = pot_cap//2
+        white_cap = pot_cap//3
         yellow_cap = pot_cap//3
         green_cap = pot_cap//4
         blue_cap = pot_cap//6
@@ -135,7 +135,7 @@ def get_bottle_plan():
         teal_cap = 0
         purple_cap = pot_cap//5
     elif(cur_day == "Hearthday"):
-        white_cap = pot_cap//2
+        white_cap = pot_cap//3
         yellow_cap = pot_cap//3
         green_cap = pot_cap//4
         blue_cap = pot_cap//6
