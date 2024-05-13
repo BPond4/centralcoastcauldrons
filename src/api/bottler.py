@@ -133,15 +133,15 @@ def get_bottle_plan():
         blue_cap = pot_cap//6
         red_cap = pot_cap//10
         teal_cap = 0
-        purple_cap = pot_cap//5
+        purple_cap = pot_cap//4
     elif(cur_day == "Hearthday"):
         white_cap = pot_cap//3
         yellow_cap = pot_cap//3
         green_cap = pot_cap//4
         blue_cap = pot_cap//6
-        red_cap = pot_cap//10
+        red_cap = pot_cap//5
         teal_cap = 0
-        purple_cap = 0
+        purple_cap = pot_cap//3
     
     potion_list = []
     flag = True
