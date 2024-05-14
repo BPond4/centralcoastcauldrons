@@ -80,7 +80,6 @@ def deliver_capacity_plan(capacity_purchase : CapacityPurchase, order_id: int):
     description = "Increasing capacity"
     count = capacity_purchase.potion_capacity + capacity_purchase.ml_capacity
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = gold - :count"), {"count": count*1000})
         connection.execute(sqlalchemy.text("UPDATE capacity SET potion_capacity = potion_capacity + :pot_cap, ml_capacity = ml_capacity + :ml_cap"),
                            {"pot_cap": capacity_purchase.potion_capacity*50, "ml_cap": capacity_purchase.ml_capacity*10000})
         cur_time = connection.execute(sqlalchemy.text("SELECT MAX(id) FROM timestamps")).fetchone()[0]

@@ -13,10 +13,10 @@ router = APIRouter(
 )
 
 class search_sort_options(str, Enum):
-    customer_name = "c.name"
-    item_sku = "p.sku"
-    line_item_total = "ci.gold_paid"
-    timestamp = "t.time"
+    customer_name = "customer_name"
+    item_sku = "item_sku"
+    line_item_total = "line_item_total"
+    timestamp = "timestamp"
 
 class search_sort_order(str, Enum):
     asc = "asc"
@@ -57,17 +57,27 @@ def search_orders(
     
     
     sql_query = """SELECT ci.quantity, ci.gold_paid, p.sku, c.name, t.time FROM cart_items ci JOIN potions p ON ci.product_id = p.id JOIN carts ca ON ci.cart_id = ca.id JOIN customers c ON ca.customer_id = c.customer_id JOIN timestamps t ON ca.time_id = t.id WHERE c.name LIKE :name AND p.sku LIKE :potionsku ORDER BY {order_col} {sort_direction}"""
-
+    
+    correct_col = ""
+    if(sort_col.value == "timestamp"):
+         correct_col = "t.time"
+    elif(sort_col.value == "customer_name"):
+         correct_col = "c.name"
+    elif(sort_col.value == "item_sku"):
+         correct_col = "p.sku"
+    elif(sort_col.value == "line_item_total"):
+         correct_col = "ci.gold_paid"
     # Define the parameters for the query
     params = {
         "name": f'%{customer_name}%',
         "potionsku": f'%{potion_sku}%',
-        "order_col": sort_col.value,  # This should be the column name to order by
+        "order_col": correct_col,  # This should be the column name to order by
         "sort_direction": sort_order.upper()  # Convert sort_order to uppercase ('ASC' or 'DESC')
     }
 
     # Construct the formatted SQL query with placeholders filled
     formatted_sql_query = sql_query.format(order_col=params["order_col"], sort_direction=params["sort_direction"])
+    
 
     # Execute the query using connection.execute() with sqlalchemy.text()
     with db.engine.begin() as connection:
@@ -76,6 +86,7 @@ def search_orders(
     rowlist = []
     i = 0
     for row in rows:
+         
          i+=1
          rowlist.append({
               "line_item_id": i,
