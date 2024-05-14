@@ -114,6 +114,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                     )
                     budget -= barrel.price * amt
                     total_ml+=barrel.ml_per_barrel*amt
+                    red_ml += barrel.ml_per_barrel*amt
                     red_barrel_bought = True
             elif(green_ml == 0 or (green_ml<=blue_ml and green_ml<=red_ml) and (not green_barrel_bought)):
                 if((barrel.potion_type[1]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>barrel_size and ((barrel.ml_per_barrel+total_ml) <ml_cap)):
@@ -130,6 +131,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                     )
                     budget -= barrel.price * amt
                     total_ml+=barrel.ml_per_barrel*amt
+                    green_ml += barrel.ml_per_barrel*amt
                     green_barrel_bought = True
             elif(blue_ml == 0 or (blue_ml<=red_ml and blue_ml<=green_ml) and (not blue_barrel_bought)):
                 if((barrel.potion_type[2]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>barrel_size and ((barrel.ml_per_barrel+total_ml) <ml_cap)):
@@ -146,6 +148,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                     )
                     budget -= barrel.price * amt
                     total_ml+=barrel.ml_per_barrel*amt
+                    blue_ml += barrel.ml_per_barrel*amt
                     blue_barrel_bought = True
             
             if((barrel.potion_type[3]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>barrel_size and ((barrel.ml_per_barrel+total_ml) <ml_cap)):
@@ -163,12 +166,12 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                 budget -= barrel.price * amt
                 total_ml+=barrel.ml_per_barrel*amt
 
-            if (red_ml<blue_ml) and (red_ml<green_ml):
-                red_barrel_bought = False
-            elif (green_ml<blue_ml) and (green_ml<red_ml):
-                green_barrel_bought = False
-            elif (blue_ml<red_ml) and (blue_ml<green_ml):
-                blue_barrel_bought = False
+        if (red_ml<blue_ml) and (red_ml<green_ml):
+            red_barrel_bought = False
+        elif (green_ml<blue_ml) and (green_ml<red_ml):
+            green_barrel_bought = False
+        elif (blue_ml<red_ml) and (blue_ml<green_ml):
+            blue_barrel_bought = False
         
  
     print(purchase_plan)
