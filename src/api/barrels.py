@@ -90,15 +90,17 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     dark_barrel_bought = False
     total_ml = green_ml+blue_ml+red_ml+dark_ml
     barrel_size = 2500
+    if ml_cap-total_ml<10000:
+        barrel_size = 500
     iterations = 0
-    while((total_ml<(ml_cap - 500)) and budget>=100 and (not blue_barrel_bought or not red_barrel_bought or not green_barrel_bought) and iterations<5):
+    while((total_ml<(ml_cap - 500)) and budget>=100 and iterations<10):
         if(iterations>2):
             barrel_size = 500
         iterations+=1
         
         for barrel in wholesale_catalog:
-            if(red_ml == 0 or (red_ml<=blue_ml and red_ml<=green_ml) or green_barrel_bought or blue_barrel_bought):
-                if((barrel.potion_type[0]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>barrel_size and ((barrel.ml_per_barrel+total_ml) <ml_cap)and (not red_barrel_bought)):
+            if(red_ml == 0 or (red_ml<=blue_ml and red_ml<=green_ml) and (not red_barrel_bought)):
+                if((barrel.potion_type[0]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>barrel_size and ((barrel.ml_per_barrel+total_ml) <ml_cap)):
                     sku = barrel.sku
                     amt = 1
                     max_amt = min(barrel.quantity,(ml_cap-total_ml)//barrel.ml_per_barrel)
@@ -113,8 +115,8 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                     budget -= barrel.price * amt
                     total_ml+=barrel.ml_per_barrel*amt
                     red_barrel_bought = True
-            elif(green_ml == 0 or (green_ml<=blue_ml and green_ml<=red_ml) or red_barrel_bought or blue_barrel_bought):
-                if((barrel.potion_type[1]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>barrel_size and ((barrel.ml_per_barrel+total_ml) <ml_cap) and (not green_barrel_bought)):
+            elif(green_ml == 0 or (green_ml<=blue_ml and green_ml<=red_ml) and (not green_barrel_bought)):
+                if((barrel.potion_type[1]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>barrel_size and ((barrel.ml_per_barrel+total_ml) <ml_cap)):
                     sku = barrel.sku
                     amt = 1
                     max_amt = min(barrel.quantity,(ml_cap-total_ml)//barrel.ml_per_barrel)
@@ -129,8 +131,8 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                     budget -= barrel.price * amt
                     total_ml+=barrel.ml_per_barrel*amt
                     green_barrel_bought = True
-            elif(blue_ml == 0 or (blue_ml<=red_ml and blue_ml<=green_ml) or green_barrel_bought or red_barrel_bought):
-                if((barrel.potion_type[2]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>barrel_size and ((barrel.ml_per_barrel+total_ml) <ml_cap)and (not blue_barrel_bought)):
+            elif(blue_ml == 0 or (blue_ml<=red_ml and blue_ml<=green_ml) and (not blue_barrel_bought)):
+                if((barrel.potion_type[2]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>barrel_size and ((barrel.ml_per_barrel+total_ml) <ml_cap)):
                     sku = barrel.sku
                     amt = 1
                     max_amt = min(barrel.quantity,(ml_cap-total_ml)//barrel.ml_per_barrel)
@@ -145,26 +147,28 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                     budget -= barrel.price * amt
                     total_ml+=barrel.ml_per_barrel*amt
                     blue_barrel_bought = True
-            elif(dark_ml == 0 or (dark_ml<=blue_ml and dark_ml<=green_ml)):
-                if((barrel.potion_type[3]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>barrel_size and ((barrel.ml_per_barrel+total_ml) <ml_cap)and (not dark_barrel_bought)):
-                    sku = barrel.sku
-                    amt = 1
-                    max_amt = min(barrel.quantity,(ml_cap-total_ml)//barrel.ml_per_barrel)
-                    if(max_amt>3):
-                        amt = 2
-                    purchase_plan.append( 
-                        {
-                            "sku": sku,
-                            "quantity": amt,
-                        }
-                    )
-                    budget -= barrel.price * amt
-                    total_ml+=barrel.ml_per_barrel*amt
-                    dark_barrel_bought = True
-        if red_barrel_bought and green_barrel_bought and blue_barrel_bought:
-            red_barrel_bought = False
-            green_barrel_bought = False
-            blue_barrel_bought = False
+            
+            if((barrel.potion_type[3]>=1) and (barrel.price<=budget) and barrel.ml_per_barrel>barrel_size and ((barrel.ml_per_barrel+total_ml) <ml_cap)):
+                sku = barrel.sku
+                amt = 1
+                max_amt = min(barrel.quantity,(ml_cap-total_ml)//barrel.ml_per_barrel)
+                if(max_amt>3):
+                    amt = 2
+                purchase_plan.append( 
+                    {
+                        "sku": sku,
+                        "quantity": amt,
+                    }
+                )
+                budget -= barrel.price * amt
+                total_ml+=barrel.ml_per_barrel*amt
+
+            if (red_ml<blue_ml) and (red_ml<green_ml):
+                red_barrel_bought = False
+            elif (green_ml<blue_ml) and (green_ml<red_ml):
+                green_barrel_bought = False
+            elif (blue_ml<red_ml) and (blue_ml<green_ml):
+                blue_barrel_bought = False
         
  
     print(purchase_plan)
