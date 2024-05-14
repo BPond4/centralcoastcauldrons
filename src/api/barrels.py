@@ -45,11 +45,11 @@ def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
         if(barrel.potion_type!= [1,0,0,0] and barrel.potion_type != [0,1,0,0] and barrel.potion_type!= [0,0,1,0] and barrel.potion_type != [0,0,0,1]):
             raise Exception("Invalid potion type")
         
-        green_ml+=(barrel.ml_per_barrel)*(barrel.potion_type[1])
-        red_ml += (barrel.ml_per_barrel)*(barrel.potion_type[0])
-        blue_ml += (barrel.ml_per_barrel)*(barrel.potion_type[2])
-        dark_ml += (barrel.ml_per_barrel)*(barrel.potion_type[3])
-        cost+= barrel.price
+        green_ml+=(barrel.ml_per_barrel)*(barrel.potion_type[1])*(barrel.quantity)
+        red_ml += (barrel.ml_per_barrel)*(barrel.potion_type[0])*(barrel.quantity)
+        blue_ml += (barrel.ml_per_barrel)*(barrel.potion_type[2])*(barrel.quantity)
+        dark_ml += (barrel.ml_per_barrel)*(barrel.potion_type[3])*(barrel.quantity)
+        cost+= barrel.price*barrel.quantity
 
     print(f"gold_paid: {cost} red_ml: {red_ml} green_ml: {green_ml} blue_ml: {blue_ml} dark_ml: {dark_ml}")
     
