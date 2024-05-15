@@ -61,6 +61,7 @@ def get_bottle_plan():
             red_pots = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers WHERE potion_id = 1")).fetchone()[0]
             green_pots = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers WHERE potion_id = 2")).fetchone()[0]
             blue_pots = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers WHERE potion_id = 3")).fetchone()[0]
+            navy_pots = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers WHERE potion_id = 10")).fetchone()[0]
             if(not white_pots):
                 white_pots=0
             if(not yellow_pots):
@@ -75,6 +76,8 @@ def get_bottle_plan():
                 green_pots=0
             if(not blue_pots):
                 blue_pots=0
+            if(not navy_pots):
+                navy_pots = 0
             
 
             barrels_bought = connection.execute(sqlalchemy.text("SELECT SUM(red_ml), SUM(green_ml), SUM(blue_ml), SUM(dark_ml) FROM ml_ledgers")).fetchone()
@@ -85,7 +88,7 @@ def get_bottle_plan():
             prev_dark_ml = barrels_bought[3]
 
             pot_cap = (connection.execute(sqlalchemy.text("SELECT potion_capacity FROM capacity")).fetchone())[0]
-
+    navy_cap = pot_cap//6
     if(cur_day == "Crownday"):
         white_cap = pot_cap//4
         yellow_cap = pot_cap//4
@@ -161,6 +164,19 @@ def get_bottle_plan():
                 prev_green_ml -= amt*33
                 prev_blue_ml -= amt*34
                 prev_red_ml -= amt*33
+        elif(prev_dark_ml>100 and prev_blue_ml>100 and navy_pots < (navy_cap)):
+            amt = min(min(pot_cap-cur_pots,navy_cap-navy_pots),min(prev_blue_ml//50,prev_dark_ml//50) - 1)
+            if(amt>0):
+                potion_list.append(
+                    {
+                        "potion_type": [0,0,50,50],
+                        "quantity": amt,
+                    }
+                )
+                cur_pots+=amt
+                navy_pots+=amt
+                prev_blue_ml -= amt*50
+                prev_dark_ml -= amt*50
         elif(prev_red_ml>100 and prev_blue_ml>100 and purple_pots < (purple_cap)):
             amt = min(min(pot_cap-cur_pots,purple_cap-purple_pots),min(prev_blue_ml//50,prev_red_ml//50) - 1)
             if(amt>0):
