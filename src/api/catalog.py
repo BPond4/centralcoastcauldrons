@@ -14,7 +14,7 @@ def get_catalog():
     count = 0
     with db.engine.begin() as connection:
         
-        potions = connection.execute(sqlalchemy.text("SELECT id, sku, price, red, green, blue, dark FROM potions")).fetchall()
+        potions = connection.execute(sqlalchemy.text("SELECT id, sku, price, red, green, blue, dark FROM potions ORDER BY id DESC")).fetchall()
         for potion in potions:
             quantity = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers WHERE potion_id = :potion_id"),{"potion_id":potion[0]}).fetchone()[0]
             if(quantity):
