@@ -62,6 +62,7 @@ def get_bottle_plan():
             green_pots = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers WHERE potion_id = 2")).fetchone()[0]
             blue_pots = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers WHERE potion_id = 3")).fetchone()[0]
             navy_pots = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers WHERE potion_id = 10")).fetchone()[0]
+            dark_pots = connection.execute(sqlalchemy.text("SELECT SUM(num_potions) FROM potion_ledgers WHERE potion_id = 4")).fetchone()[0]
             if(not white_pots):
                 white_pots=0
             if(not yellow_pots):
@@ -78,6 +79,8 @@ def get_bottle_plan():
                 blue_pots=0
             if(not navy_pots):
                 navy_pots = 0
+            if(not dark_pots):
+                dark_pots = 0
             
 
             barrels_bought = connection.execute(sqlalchemy.text("SELECT SUM(red_ml), SUM(green_ml), SUM(blue_ml), SUM(dark_ml) FROM ml_ledgers")).fetchone()
@@ -89,6 +92,7 @@ def get_bottle_plan():
 
             pot_cap = (connection.execute(sqlalchemy.text("SELECT potion_capacity FROM capacity")).fetchone())[0]
     navy_cap = pot_cap//6
+    dark_cap = pot_cap//6
     if(cur_day == "Crownday"):
         white_cap = pot_cap//4
         yellow_cap = pot_cap//4
@@ -253,7 +257,7 @@ def get_bottle_plan():
                     cur_pots+=amt
                     prev_blue_ml -= amt*100
             
-            if(prev_dark_ml>=200):
+            if(prev_dark_ml>=200 and dark_pots<dark_cap):
                 amt = min(min(pot_cap//10,pot_cap-cur_pots),(prev_dark_ml//100)-1)
                 if(amt>0):
                     potion_list.append(
