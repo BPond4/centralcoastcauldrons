@@ -93,9 +93,9 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     if ml_cap-total_ml<10000:
         barrel_size = 500
     iterations = 0
-    while((total_ml<(ml_cap - 500)) and budget>=100 and iterations<10):
-        if(iterations>10 and ml_cap-total_ml<10000):
-            barrel_size = 500
+    while((total_ml<(ml_cap - 500)) and budget>=100 and iterations<20):
+        if(iterations>10 and (ml_cap-total_ml<10000 or ((blue_barrel_bought == False) and (red_barrel_bought == False) and (green_barrel_bought == False)))):
+            barrel_size = 250
         iterations+=1
         
         for barrel in wholesale_catalog:
