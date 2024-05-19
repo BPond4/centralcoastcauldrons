@@ -62,8 +62,8 @@ def get_capacity_plan():
 
     print(f"Buying {potion_increase} potion capacity and {ml_increase} ml capacity")
     return {
-        "potion_capacity": potion_increase,
-        "ml_capacity": ml_increase
+        "potion_capacity": 0,
+        "ml_capacity": 0
         }
 
 class CapacityPurchase(BaseModel):
